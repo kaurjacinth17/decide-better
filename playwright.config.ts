@@ -6,7 +6,7 @@ export default defineConfig({
   testDir: 'tests/e2e',
   fullyParallel: true,
   retries: process.env.CI ? 1 : 0,
-  reporter: [['list']],
+  reporter: process.env.CI ? [['list'], ['html', { open: 'never' }]] : [['list']],
   use: { baseURL: `http://localhost:${PORT}`, trace: 'off' },
   projects: [
     { name: 'desktop', use: { ...devices['Desktop Chrome'], viewport: { width: 1360, height: 900 } } },

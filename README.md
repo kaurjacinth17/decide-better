@@ -1,5 +1,7 @@
 # Decide Better
 
+[![CI](https://github.com/kaurjacinth17/decide-better/actions/workflows/ci.yml/badge.svg)](https://github.com/kaurjacinth17/decide-better/actions/workflows/ci.yml)
+
 **Less opinion, more structure.** Decide Better helps you choose between options — job offers, cities, laptops, MBA tracks, business ideas — by weighting what matters and scoring each option. It shows the winner, why it wins, how fragile that is, and exactly what would change the decision.
 
 All scoring maths is deterministic, runs in your browser and is unit-tested. An optional AI layer can _propose_ options, criteria, challenges and write-ups, but you accept or reject every proposal. The AI never changes scores or weights by itself, and the app works fully without it.
@@ -199,13 +201,42 @@ store (Zustand) ──► analyse(decision) ──► WorkspaceContext ──►
 
 ## Deployment
 
-The AI routes need a Node.js server, so deploy anywhere that runs `next start`: Vercel, Render, Fly.io or a container. Set the environment variables above in the host's settings. Without them, the app is fully functional with AI hidden.
+The app is a standard Next.js project. The worksheet itself is static, but the optional AI routes need a server, so deploy to a host that runs Next.js server code. Vercel is the simplest.
 
-Notes:
+### Vercel (recommended)
 
-- **Rate limit across instances.** The rate limiter is in-memory, so it limits per server instance. Behind several instances, swap `src/server/ai/rateLimit.ts` for a shared store such as Redis or a KV store.
-- **Service worker updates.** The service worker cache is versioned per build, so a new deploy refreshes offline assets on the next visit.
-- **Share links contain the data.** Anyone holding a link can read that decision, so share it like you'd share the numbers themselves.
+1. **Import the repository.** In Vercel, choose _Add New → Project_, give Vercel access to `kaurjacinth17/decide-better`, and import it. It detects Next.js and pnpm on its own, so leave the build settings as they are.
+2. **Add environment variables** (_Settings → Environment Variables_):
+   - `ANTHROPIC_API_KEY`: your key. Add it to **Production** only, unless you want preview deployments to spend credits too.
+   - `ANTHROPIC_MODEL` and `AI_RATE_LIMIT`: optional; the defaults are above.
+
+   Skip the key entirely and the app deploys with AI hidden.
+
+3. **Deploy.** After that, every push to `main` redeploys production, and every pull request gets its own preview URL.
+4. **Smoke-test the live site:**
+   - The worksheet loads with the _Switch jobs_ template.
+   - `/api/ai/status` returns `{"available":true,...}` if you set a key.
+   - _Share read-only link_ opens in a private window.
+   - After one visit, the page still loads with the network off.
+
+**Two things to know before sharing the link widely:**
+
+- **AI spending.** The per-session rate limit is held in memory, and Vercel runs several function instances, each with its own count. That makes it a soft limit. Set a monthly spend limit for the key in the Anthropic Console; that's the real cap. For a hard limit across instances, replace `src/server/ai/rateLimit.ts` with a shared store such as Upstash Redis or Vercel KV.
+- **Request time.** Each AI route declares `maxDuration = 60` (seconds) and stops its own model call at 55 seconds with a friendly "took too long" message, so requests fit inside the function time limit.
+
+### Other hosts
+
+Anything that can run `pnpm build && pnpm start` on Node.js 22 works, such as Render, Fly.io or a Docker container. Set the same environment variables. The service worker cache is versioned per build, so after a deploy, returning visitors get fresh offline assets.
+
+### Continuous integration
+
+`.github/workflows/ci.yml` runs on every push to `main` and every pull request:
+
+- lint, format check, typecheck and unit tests;
+- a production build;
+- the full Playwright suite (desktop and a 360px phone, including the axe accessibility checks).
+
+It deliberately runs without an API key: the AI routes are mocked, and one test confirms the app works fully without them. If a run fails, the Playwright report is attached as an artifact.
 
 ## Migrating from the prototype
 
