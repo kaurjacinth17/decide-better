@@ -14,21 +14,42 @@ export const FORMAT_VERSION = 1;
 const toNum = (v: unknown) =>
   typeof v === 'string' && v.trim() === '' ? NaN : typeof v === 'number' || typeof v === 'string' ? Number(v) : NaN;
 const finiteOr = (fallback: number, lo = -Infinity, hi = Infinity) =>
-  z.unknown().transform((v) => {
+  z
+    .unknown()
+    .optional()
+    .transform((v) => {
+      const n = toNum(v);
+      return Number.isFinite(n) ? clamp(n, lo, hi) : fallback;
+    });
+const nullableFinite = z
+  .unknown()
+  .optional()
+  .transform((v) => {
+    if (v === null || v === undefined) return null;
     const n = toNum(v);
-    return Number.isFinite(n) ? clamp(n, lo, hi) : fallback;
+    return Number.isFinite(n) ? n : null;
   });
-const nullableFinite = z.unknown().transform((v) => {
-  if (v === null || v === undefined) return null;
-  const n = toNum(v);
-  return Number.isFinite(n) ? n : null;
-});
 const text = (fallback: string, max: number) =>
-  z.unknown().transform((v) => (typeof v === 'string' || typeof v === 'number' ? String(v).slice(0, max) : fallback));
-const idField = z.unknown().transform((v) => (typeof v === 'string' && v ? v.slice(0, 80) : newId()));
-const certainty = z.unknown().transform((v) => (v === 0 || v === 1 || v === 2 ? v : 1));
-const direction = z.unknown().transform((v) => (Number(v) === -1 ? -1 : 1) as 1 | -1);
-const templateKey = z.unknown().transform((v) => (TEMPLATE_KEYS.includes(v as TemplateKey) ? (v as TemplateKey) : 'blank'));
+  z
+    .unknown()
+    .optional()
+    .transform((v) => (typeof v === 'string' || typeof v === 'number' ? String(v).slice(0, max) : fallback));
+const idField = z
+  .unknown()
+  .optional()
+  .transform((v) => (typeof v === 'string' && v ? v.slice(0, 80) : newId()));
+const certainty = z
+  .unknown()
+  .optional()
+  .transform((v) => (v === 0 || v === 1 || v === 2 ? v : 1));
+const direction = z
+  .unknown()
+  .optional()
+  .transform((v) => (Number(v) === -1 ? -1 : 1) as 1 | -1);
+const templateKey = z
+  .unknown()
+  .optional()
+  .transform((v) => (TEMPLATE_KEYS.includes(v as TemplateKey) ? (v as TemplateKey) : 'blank'));
 const score = finiteOr(5, 1, 10);
 
 const OptionSchema = z.object({ id: idField, name: text('Option', LIMITS.nameMax) });
@@ -40,7 +61,10 @@ const CriterionSchema = z.object({
   name: text('Criterion', LIMITS.nameMax),
   weight: finiteOr(10, 0, 100),
   hint: text('', 40),
-  mode: z.unknown().transform((v) => (v === 'value' ? 'value' : 'score') as Criterion['mode']),
+  mode: z
+    .unknown()
+    .optional()
+    .transform((v) => (v === 'value' ? 'value' : 'score') as Criterion['mode']),
   direction,
   unit: text('', 16),
   scores: z.array(score),
@@ -67,8 +91,14 @@ export const DecisionSchema = z
     id: idField,
     title: text('Untitled decision', LIMITS.titleMax),
     templateKey,
-    gutOptionId: z.unknown().transform((v) => (typeof v === 'string' && v ? v : null)),
-    varyWeights: z.unknown().transform((v) => v !== false),
+    gutOptionId: z
+      .unknown()
+      .optional()
+      .transform((v) => (typeof v === 'string' && v ? v : null)),
+    varyWeights: z
+      .unknown()
+      .optional()
+      .transform((v) => v !== false),
     options: z.array(OptionSchema),
     criteria: z.array(CriterionSchema),
     createdAt: finiteOr(Date.now()),
@@ -92,7 +122,10 @@ const ProtoCriterionSchema = z.object({
   w: finiteOr(10, 0, 100),
   s: z.array(score),
   hint: text('', 40),
-  mode: z.unknown().transform((v) => (v === 'value' ? 'value' : 'score') as Criterion['mode']),
+  mode: z
+    .unknown()
+    .optional()
+    .transform((v) => (v === 'value' ? 'value' : 'score') as Criterion['mode']),
   dir: direction,
   unit: text('', 16),
   v: z.array(nullableFinite).optional(),
@@ -105,8 +138,14 @@ export const PrototypeDecisionSchema = z
     id: idField,
     title: text('Untitled decision', LIMITS.titleMax),
     tpl: templateKey,
-    gut: z.unknown().transform((v) => (typeof v === 'string' && v ? v : null)),
-    wNoise: z.unknown().transform((v) => v !== false),
+    gut: z
+      .unknown()
+      .optional()
+      .transform((v) => (typeof v === 'string' && v ? v : null)),
+    wNoise: z
+      .unknown()
+      .optional()
+      .transform((v) => v !== false),
     options: z.array(OptionSchema),
     criteria: z.array(ProtoCriterionSchema),
   })
