@@ -8,6 +8,7 @@ import { Brand } from './Header';
 import { useAnalysis } from './hooks';
 import { StoreGate } from './StoreGate';
 import { useSimulation } from './useSimulation';
+import { AiMemo } from './ai/AiMemo';
 
 export function MemoDocument({ facts, children }: { facts: MemoFacts; children?: ReactNode }) {
   const sections = deterministicMemo(facts);
@@ -102,7 +103,7 @@ export function useMemoFacts(): { facts: MemoFacts; a: Analysis; sim: SimResult 
   return { facts, a, sim, pending };
 }
 
-function Memo({ aiSlot }: { aiSlot?: ReactNode }) {
+function Memo() {
   const { facts, pending } = useMemoFacts();
   return (
     <main className="band" id="main">
@@ -116,16 +117,18 @@ function Memo({ aiSlot }: { aiSlot?: ReactNode }) {
           </button>
           {pending && <span className="small mt-0">Updating simulation figures…</span>}
         </div>
-        <MemoDocument facts={facts}>{aiSlot}</MemoDocument>
+        <MemoDocument facts={facts}>
+          <AiMemo facts={facts} />
+        </MemoDocument>
       </div>
     </main>
   );
 }
 
-export function MemoPage({ aiSlot }: { aiSlot?: ReactNode }) {
+export function MemoPage() {
   return (
     <StoreGate>
-      <Memo aiSlot={aiSlot} />
+      <Memo />
     </StoreGate>
   );
 }

@@ -3,6 +3,11 @@ import { useEffect, useMemo, useState } from 'react';
 import { actions, getAppStore, useApp, useCurrent } from '@/store/appStore';
 import { StoreGate } from './StoreGate';
 import { Toolbar } from './Toolbar';
+import { useAi } from '@/lib/ai/client';
+import { AiToggle } from './ai/common';
+import { ChallengePanel } from './ai/ChallengePanel';
+import { GutInterview } from './ai/GutInterview';
+import { IntakePanel } from './ai/IntakePanel';
 import { ExportImport } from './ExportImport';
 import { Header } from './Header';
 import { useAnalysis } from './hooks';
@@ -52,6 +57,7 @@ function Editor() {
   const a = useAnalysis(d)!;
   const { sim, pending } = useSimulation(a);
   const [weightsOpen, setWeightsOpen] = useState(false);
+  const ai = useAi();
   const store = getAppStore().getState();
 
   const value = useMemo(
@@ -82,7 +88,15 @@ function Editor() {
       <a href="#main" className="sr-only-x focus:not-sr-only">
         Skip to the scoring matrix
       </a>
-      <Header extra={<Toolbar />} />
+      <Header
+        extra={
+          <>
+            <Toolbar />
+            <AiToggle />
+            {ai.active && <IntakePanel />}
+          </>
+        }
+      />
       <WorkspaceSections
         onOpenWeights={() => setWeightsOpen(true)}
         matrixExtra={
@@ -91,6 +105,14 @@ function Editor() {
           </button>
         }
         verdictActions={<UndoRedo />}
+        aside={
+          ai.active ? (
+            <>
+              <GutInterview />
+              <ChallengePanel />
+            </>
+          ) : undefined
+        }
       />
       <footer className="band pt-0">
         <div className="wrap">

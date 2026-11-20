@@ -17,7 +17,7 @@ export function WorkspaceSections({
   matrixExtra?: ReactNode;
   onOpenWeights?: () => void;
   verdictActions?: ReactNode;
-  /** Extra panels shown under the verdict (AI features). */
+  /** Extra panels shown below the worksheet (AI features). */
   aside?: ReactNode;
 }) {
   return (
@@ -25,12 +25,14 @@ export function WorkspaceSections({
       <main className="band" id="main">
         <div className="wrap work">
           <Matrix onOpenWeights={onOpenWeights}>{matrixExtra}</Matrix>
-          <div className="vd grid gap-5">
-            <VerdictPanel actions={verdictActions} />
-            {aside}
-          </div>
+          <VerdictPanel actions={verdictActions} />
         </div>
       </main>
+      {aside && (
+        <section className="band nt no-print" aria-label="AI second opinion">
+          <div className="wrap two s4 items-start">{aside}</div>
+        </section>
+      )}
       <section className="band nt" aria-label="Points breakdown">
         <div className="wrap two">
           <Breakdown />
