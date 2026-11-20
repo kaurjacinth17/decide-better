@@ -31,6 +31,9 @@ export class AiError extends Error {
   /** Map SDK errors (most specific first) to user-safe messages. Never leaks keys or raw upstream text. */
   static fromSdk(e: unknown): AiError {
     if (e instanceof AiError) return e;
+    // Our own deadline aborted the call (checked first: it is a subclass of APIError).
+    if (e instanceof Anthropic.APIUserAbortError)
+      return new AiError('timeout', 'The AI took too long to answer, so the request was stopped. Try again.');
     if (e instanceof Anthropic.APIConnectionTimeoutError) return new AiError('timeout', 'The AI took too long to answer. Try again.');
     if (e instanceof Anthropic.APIConnectionError)
       return new AiError('upstream', 'Could not reach the AI service. Check the connection and try again.');

@@ -275,3 +275,32 @@ describe('route plumbing', () => {
     }
   });
 });
+
+describe('request deadline', () => {
+  it('aborts a slow model call at the deadline and returns a friendly timeout', async () => {
+    let sawSignal = false;
+    const slow = (async (spec) => {
+      sawSignal = spec.signal instanceof AbortSignal;
+      await new Promise<void>((_, reject) => spec.signal?.addEventListener('abort', () => reject(new Anthropic.APIUserAbortError())));
+      throw new Error('unreachable');
+    }) as Generate;
+    const route = aiRoute((body, gen) => handleIntake(body, gen), {
+      generate: slow,
+      configured: () => true,
+      limiter: createRateLimiter(10, 60_000),
+      ipLimiter: createRateLimiter(10, 60_000),
+      deadlineMs: 30,
+    });
+    const started = Date.now();
+    const res = await route(
+      new NextRequest('http://localhost/api/ai/intake', {
+        method: 'POST',
+        body: JSON.stringify({ description: 'A long enough description of a dilemma.' }),
+      }),
+    );
+    expect(sawSignal).toBe(true);
+    expect(res.status).toBe(504);
+    expect((await res.json()).error.code).toBe('timeout');
+    expect(Date.now() - started).toBeLessThan(2000);
+  });
+});

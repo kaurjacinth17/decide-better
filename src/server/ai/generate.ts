@@ -24,6 +24,8 @@ export interface GenerateSpec<S extends z.ZodType> {
   user: string;
   effort: Effort;
   maxTokens?: number;
+  /** Aborts the call when the route's overall deadline passes. */
+  signal?: AbortSignal;
 }
 
 /** Dependency injected into handlers so they can be tested without the API. */
@@ -33,8 +35,9 @@ let client: Anthropic | null = null;
 const getClient = () =>
   (client ??= new Anthropic({
     // TypeScript SDK timeouts are in milliseconds. Retries cover 408/409/429/5xx and connection errors.
-    timeout: 60_000,
-    maxRetries: 2,
+    // Per attempt; the route also enforces an overall deadline so a request fits the host's 60 s limit.
+    timeout: 50_000,
+    maxRetries: 1,
   }));
 
 export const generate: Generate = async (spec) => {
@@ -43,15 +46,18 @@ export const generate: Generate = async (spec) => {
   const useFallback = FALLBACK_MODELS.has(model);
   let res;
   try {
-    res = await getClient().beta.messages.parse({
-      model,
-      max_tokens: spec.maxTokens ?? 8000,
-      system: spec.system,
-      messages: [{ role: 'user', content: spec.user }],
-      output_config: { effort: spec.effort, format: betaZodOutputFormat(spec.schema) },
-      // If the model declines on policy grounds, the API retries on a suitable fallback model in the same call.
-      ...(useFallback ? { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const } : {}),
-    });
+    res = await getClient().beta.messages.parse(
+      {
+        model,
+        max_tokens: spec.maxTokens ?? 8000,
+        system: spec.system,
+        messages: [{ role: 'user', content: spec.user }],
+        output_config: { effort: spec.effort, format: betaZodOutputFormat(spec.schema) },
+        // If the model declines on policy grounds, the API retries on a suitable fallback model in the same call.
+        ...(useFallback ? { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const } : {}),
+      },
+      { signal: spec.signal },
+    );
   } catch (e) {
     throw AiError.fromSdk(e);
   }

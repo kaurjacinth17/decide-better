@@ -18,7 +18,11 @@ export interface RouteDeps {
   configured: () => boolean;
   limiter: RateLimiter;
   ipLimiter: RateLimiter;
+  /** Overall budget per request; keeps every call inside the host's 60 s function limit. */
+  deadlineMs?: number;
 }
+
+export const AI_DEADLINE_MS = 55_000;
 
 const defaultDeps: RouteDeps = { generate: realGenerate, configured: aiConfigured, limiter: sessionLimiter, ipLimiter };
 
@@ -64,7 +68,14 @@ export function aiRoute(handler: (body: unknown, generate: Generate) => Promise<
       } catch {
         throw new AiError('bad_request', 'The request was not valid JSON.');
       }
-      return reply(200, await handler(body, deps.generate));
+      const ctl = new AbortController();
+      const timer = setTimeout(() => ctl.abort(), deps.deadlineMs ?? AI_DEADLINE_MS);
+      try {
+        const withDeadline: Generate = (spec) => deps.generate({ ...spec, signal: ctl.signal });
+        return reply(200, await handler(body, withDeadline));
+      } finally {
+        clearTimeout(timer);
+      }
     } catch (e) {
       const err = AiError.fromSdk(e);
       if (!(e instanceof AiError)) console.error('[ai] unexpected error', e);
