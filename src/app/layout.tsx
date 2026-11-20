@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Schibsted_Grotesk } from 'next/font/google';
 import { themeBootScript } from '@/components/ThemeSelect';
+import { RegisterSW } from '@/components/RegisterSW';
 import './globals.css';
 
 const font = Schibsted_Grotesk({
@@ -14,6 +15,9 @@ export const metadata: Metadata = {
   title: 'Decide Better',
   description: 'Weigh what matters, score each option, and see what it would take to change your mind.',
   applicationName: 'Decide Better',
+  manifest: '/manifest.webmanifest',
+  icons: { icon: '/icons/icon.svg', apple: '/icons/apple-touch-icon.png' },
+  appleWebApp: { capable: true, title: 'Decide Better', statusBarStyle: 'default' },
 };
 
 export const viewport: Viewport = {
@@ -31,7 +35,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeBootScript }} />
       </head>
-      <body>{children}</body>
+      <body>
+        {children}
+        <RegisterSW />
+      </body>
     </html>
   );
 }

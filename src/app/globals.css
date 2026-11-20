@@ -976,3 +976,21 @@
     padding-bottom: 0;
   }
 }
+
+/* Memo: paper-like and print-friendly */
+@media print {
+  @page {
+    margin: 18mm 16mm;
+  }
+  .memo {
+    border: 0;
+    padding: 0;
+    max-width: none;
+  }
+  .band {
+    padding: 0;
+  }
+  .scroll {
+    overflow: visible;
+  }
+}

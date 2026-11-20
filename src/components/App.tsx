@@ -1,6 +1,8 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
 import { actions, getAppStore, useApp, useCurrent } from '@/store/appStore';
+import { StoreGate } from './StoreGate';
+import { Toolbar } from './Toolbar';
 import { ExportImport } from './ExportImport';
 import { Header } from './Header';
 import { useAnalysis } from './hooks';
@@ -80,7 +82,7 @@ function Editor() {
       <a href="#main" className="sr-only-x focus:not-sr-only">
         Skip to the scoring matrix
       </a>
-      <Header />
+      <Header extra={<Toolbar />} />
       <WorkspaceSections
         onOpenWeights={() => setWeightsOpen(true)}
         matrixExtra={
@@ -103,15 +105,9 @@ function Editor() {
 }
 
 export function App() {
-  const hydrated = useApp((s) => s.hydrated);
-  useEffect(() => {
-    if (!getAppStore().getState().hydrated) void getAppStore().getState().hydrate();
-  }, []);
-  if (!hydrated)
-    return (
-      <div className="band" aria-busy="true">
-        <p className="wrap text-mut">Loading your decisions…</p>
-      </div>
-    );
-  return <Editor />;
+  return (
+    <StoreGate>
+      <Editor />
+    </StoreGate>
+  );
 }
