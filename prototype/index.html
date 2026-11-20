@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Decide Better</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Schibsted+Grotesk:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a calm, exact decision worksheet
+   IDEA a planning office's ruled scoring sheet, with the verdict written in the margin
+   PICTURE the live scoring matrix beside a verdict panel; simulations, sensitivity lines and flip table below
+   COLOUR stone ground, black ink, brick for the leader and flip points, white panels
+   TYPE Schibsted Grotesk throughout, 800 for figures
+   LAYOUT laptop: matrix left, sticky verdict right; phone: title, matrix, verdict, slim leader bar */
+:root{color-scheme:light dark;--bg:light-dark(#e7e4df,#171513);--panel:light-dark(#ffffff,#211f1c);--ink:light-dark(#141210,#ece8e2);--mut:light-dark(#5c574f,#a9a399);--rule:light-dark(#d3cec6,#3a3631);--brick:light-dark(#c8371e,#ec6045);--o0:var(--brick);--o1:var(--ink);--o2:light-dark(#2f6b8a,#6fb0d4);--o3:light-dark(#a86d0c,#e3ac43);--o4:light-dark(#7b6a5c,#b8a696)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:72px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Schibsted Grotesk",system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:clip}
+.band{padding-block:clamp(20px,3vw,40px);padding-left:max(5vw,16px);padding-right:max(5vw,16px)}
+.nt{padding-top:0}
+.wrap{max-width:1240px;margin:0 auto}
+h1,h2,h3{margin:0;line-height:1.1;letter-spacing:-.02em;text-wrap:balance}
+h2{font-size:24px;font-weight:700}
+h3{font-size:17px;font-weight:700}
+p{margin:0}
+button,input,output,select,textarea{font:inherit;color:inherit}
+.sr{position:absolute;left:-9999px}
+.top{padding-bottom:8px}
+.tb{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 20px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:17px}
+.brand svg{width:22px;height:22px}
+.lib{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sel{height:44px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;background:var(--panel);font-size:16px;max-width:17em}
+.sub{color:var(--mut);margin-top:4px}
+.q{display:block;width:100%;margin:16px 0 14px;padding:4px 0;border:0;border-bottom:2px solid transparent;background:transparent;font-weight:800;font-size:clamp(30px,4.6vw,48px);line-height:1.08;letter-spacing:-.025em}
+.q:hover{border-bottom-color:var(--rule)}
+.q:focus{outline:none;border-bottom-color:var(--ink)}
+.tpls,.chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.tl{color:var(--mut);font-size:15px;margin-right:4px}
+.chip{min-height:44px;padding:0 16px;border:1px solid var(--rule);border-radius:999px;background:var(--panel);cursor:pointer;font-weight:500;font-size:15px}
+.chip:hover{border-color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--panel);border-color:var(--ink)}
+.work{display:grid;gap:20px;align-items:start}
+@media(min-width:980px){.work{grid-template-columns:minmax(0,1.75fr) minmax(310px,1fr)}.vd{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow:auto}}
+.panel{background:var(--panel);border:1px solid var(--rule);border-radius:6px;padding:clamp(16px,2.4vw,28px)}
+.mh{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;align-items:center}
+.gut{display:flex;align-items:center;gap:8px;font-size:15px;color:var(--mut);white-space:nowrap}
+.note{color:var(--mut);font-size:15px;max-width:66ch;margin-top:6px}
+.small{color:var(--mut);font-size:14px;margin-top:12px}
+.r{display:grid;grid-template-columns:var(--cols);gap:12px;align-items:center;padding:10px 0;border-bottom:1px solid var(--rule)}
+.r.open{border-bottom:0}
+.hd{border-bottom:2px solid var(--ink);padding-top:10px;font-size:14px;color:var(--mut);align-items:end}
+.sc{display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));gap:8px}
+.oh{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:4px 6px;color:var(--ink)}
+.oh i{width:10px;height:10px;border-radius:50%}
+.oh small{font-size:13px;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.oh .x{width:32px;height:32px;font-size:20px;grid-column:3}
+.oh .oname{grid-column:1/-1}
+.oname,.cname{width:100%;padding:7px 8px;border:1px solid var(--rule);border-radius:4px;background:var(--panel);font-size:16px;font-weight:700;color:var(--ink);cursor:text}
+.oname{display:block;resize:none;overflow:hidden;line-height:1.25;font-family:inherit;min-height:44px}
+.cname{font-weight:600}
+.oname:hover,.cname:hover{border-color:var(--mut)}
+.oname:focus,.cname:focus{outline:none;border-color:var(--ink);box-shadow:0 0 0 1px var(--ink)}
+.tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.tag{font-size:13px;color:var(--mut);padding:0 7px;border-radius:3px;background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.tag.bad{color:var(--brick);background:color-mix(in srgb,var(--brick) 10%,transparent)}
+.cw{display:flex;align-items:center;gap:10px}
+.wp{flex:none;width:3.2em;text-align:right;font-weight:700;font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;flex:1;height:44px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--rule)}
+input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--rule)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;margin-top:-8px;border-radius:50%;background:var(--ink);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--ink)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--ink);border:3px solid var(--panel);box-shadow:0 0 0 1px var(--ink)}
+input[type=range]:focus-visible{outline:2px solid var(--brick);outline-offset:2px;border-radius:4px}
+.cell{display:block}
+.ol{display:none}
+.sv{width:100%;height:44px;text-align:center;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;border:1px solid var(--rule);border-radius:4px;background:color-mix(in srgb,var(--ink) calc(var(--h,0) * 1%),var(--panel));-moz-appearance:textfield;appearance:textfield}
+.sv::-webkit-inner-spin-button,.sv::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.sv:focus{outline:2px solid var(--ink);outline-offset:-1px}
+.sv::placeholder{color:var(--mut);font-weight:400;font-size:14px}
+.dv{display:block;text-align:center;font-size:13px;color:var(--mut);margin-top:2px;white-space:nowrap}
+.rb{display:flex;gap:4px;justify-content:flex-end}
+.x{flex:none;width:40px;height:40px;border:0;border-radius:4px;background:transparent;color:var(--mut);font-size:22px;line-height:1;cursor:pointer;display:inline-grid;place-items:center}
+.x:hover{color:var(--brick);background:color-mix(in srgb,var(--brick) 10%,transparent)}
+.x.act{color:var(--panel);background:var(--ink)}
+.rx{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center;padding:14px 16px;margin-bottom:10px;border-radius:4px;background:color-mix(in srgb,var(--ink) 5%,var(--panel));border-bottom:1px solid var(--rule);font-size:15px}
+.rf{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.rl{color:var(--mut)}
+.rnote{flex-basis:100%;color:var(--mut);font-size:14px}
+.fld{height:40px;padding:0 10px;border:1px solid var(--rule);border-radius:4px;background:var(--panel);font-size:16px;width:13em}
+.fld.sm{width:8em}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule);border-radius:4px;overflow:hidden;background:var(--panel)}
+.seg button{min-height:40px;padding:0 12px;border:0;background:transparent;font-size:15px;cursor:pointer;white-space:nowrap}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button:hover{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.seg button.act{background:var(--ink);color:var(--panel)}
+.chk{display:inline-flex;align-items:center;gap:8px;min-height:40px;cursor:pointer}
+.chk input{width:20px;height:20px;accent-color:var(--ink)}
+.adds,.acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.btn{min-height:44px;padding:0 16px;border:1px solid var(--ink);border-radius:4px;background:transparent;font-weight:600;cursor:pointer}
+.btn:hover{background:color-mix(in srgb,var(--ink) 7%,transparent)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.pri{background:var(--ink);color:var(--panel)}
+.btn.ghost{border-color:var(--rule)}
+.btn.warn{border-color:var(--brick);color:var(--brick)}
+button:focus-visible,select:focus-visible,.chk input:focus-visible{outline:2px solid var(--brick);outline-offset:2px}
+.lab{font-size:14px;color:var(--mut);font-weight:500}
+.win{font-size:clamp(26px,3vw,32px);font-weight:800;margin-top:4px;overflow-wrap:anywhere}
+.big{margin-top:6px;line-height:1}
+.big b{font-size:clamp(56px,7vw,80px);font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums}
+.big span{font-size:20px;color:var(--mut);font-weight:600}
+.mg{margin-top:10px}
+.cf{margin-top:8px;font-size:15px}
+.pill{display:inline-block;padding:1px 10px;border-radius:999px;font-size:14px;font-weight:700;border:1.5px solid currentColor;margin-right:6px}
+.pill.g{color:var(--ink)}
+.pill.m{color:var(--o2)}
+.pill.b{color:var(--brick)}
+.bars{display:grid;gap:12px;margin-top:20px}
+.br{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;font-size:15px}
+.br.out{color:var(--mut)}
+.bn{overflow-wrap:anywhere}
+.bv{font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap}
+.bt{grid-column:1/-1;height:10px;border-radius:5px;background:color-mix(in srgb,var(--ink) 9%,transparent)}
+.bt i{display:block;height:100%;border-radius:5px}
+.out .bt i{opacity:.35}
+.ro{margin-top:16px;padding:12px 14px;border-radius:4px;background:color-mix(in srgb,var(--brick) 8%,transparent);font-size:15px}
+.ro p+p{margin-top:4px}
+.flip{margin-top:22px;padding-top:14px;border-top:2px solid var(--ink)}
+.fh{margin-top:4px;font-size:19px;font-weight:700;line-height:1.3;color:var(--brick)}
+.gutb{margin-top:18px;padding:14px;border-radius:4px;background:color-mix(in srgb,var(--ink) 5%,transparent);font-size:15px}
+.gutb p+p{margin-top:6px}
+.sumbox,.io textarea{width:100%;min-height:150px;margin-top:12px;padding:10px;font-size:14px;line-height:1.5;border:1px solid var(--rule);border-radius:4px;background:var(--bg);color:var(--ink)}
+.two{display:grid;gap:20px}
+@media(min-width:900px){.two{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr)}.s3{grid-template-columns:minmax(0,1.3fr) minmax(0,1fr)}.s4{grid-template-columns:minmax(0,1fr) minmax(0,1.2fr)}}
+.ad{display:grid;gap:20px}
+.k{font-size:26px;font-weight:800;letter-spacing:-.02em;margin:6px 0 8px;line-height:1.1}
+.k.bad{color:var(--brick)}
+.scroll{overflow-x:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th{text-align:left;font-weight:500;font-size:14px;color:var(--mut);padding:8px;border-bottom:2px solid var(--ink);vertical-align:bottom}
+th small{display:block;color:var(--brick);font-size:13px}
+td{padding:10px 8px;border-bottom:1px solid var(--rule);vertical-align:middle}
+.n{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums}
+td small{display:block;font-size:13px;color:var(--mut);white-space:nowrap}
+.cb{display:flex;align-items:center;gap:8px;min-width:84px}
+.cbt{flex:1;min-width:24px;height:8px;border-radius:4px;background:color-mix(in srgb,var(--ink) 8%,transparent)}
+.cbt i{display:block;height:100%;border-radius:4px}
+.cv{flex:none;width:2.6em;text-align:right;font-variant-numeric:tabular-nums}
+.best .cv{font-weight:800}
+td.dim{opacity:.5}
+tfoot td{font-weight:800;border-bottom:0;border-top:2px solid var(--ink)}
+.tot{text-align:right;font-variant-numeric:tabular-nums}
+.mu{color:var(--mut)}
+.lk{border:0;background:none;padding:6px 0;min-height:36px;text-align:left;font-weight:600;cursor:pointer;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
+.lk:hover{text-decoration-color:var(--ink)}
+tr.sel td{background:color-mix(in srgb,var(--brick) 8%,transparent)}
+.chips{margin-top:14px}
+.fig{position:relative;min-height:340px;margin-top:10px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{paint-order:stroke;stroke:var(--panel);stroke-width:4px;font-family:inherit}
+.mv{margin:10px 0 0;padding-left:20px}
+.mv li{margin:6px 0}
+.s3 h3{margin-top:22px}
+.ur{display:grid;grid-template-columns:minmax(0,1fr) auto auto;grid-template-areas:"n s v" "b b b";gap:6px 14px;align-items:center;padding:12px 0;border-bottom:1px solid var(--rule)}
+.un{grid-area:n;font-weight:600}
+.ur .seg{grid-area:s}
+.uv{grid-area:v;width:4.6em;text-align:right;font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap}
+.ur .bt{grid-area:b;height:6px}
+.ur .bt i{background:var(--brick)}
+.io summary{cursor:pointer;font-weight:700;min-height:44px;display:flex;align-items:center}
+.ov{position:fixed;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;padding:16px;background:color-mix(in srgb,#000 45%,transparent)}
+.ov[hidden]{display:none}
+.dlg{width:min(560px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--panel);border-radius:8px;padding:clamp(18px,3vw,28px);box-shadow:0 12px 40px rgba(0,0,0,.25)}
+.dh{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.pgb{height:6px;border-radius:3px;margin-top:14px;background:color-mix(in srgb,var(--ink) 9%,transparent)}
+.pgb i{display:block;height:100%;border-radius:3px;background:var(--brick)}
+.vs{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px;margin:22px 0 16px;font-size:24px;font-weight:800;letter-spacing:-.02em}
+.vs span{font-size:16px;font-weight:500;color:var(--mut)}
+.pwo{display:grid;gap:8px}
+.pwo .btn{text-align:left}
+.foot{padding-top:0}
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:5;display:none;justify-content:space-between;gap:12px;padding:12px max(5vw,16px);background:var(--ink);color:var(--panel);font-weight:600;transition:transform .25s}
+.bar.hide{transform:translateY(110%)}
+@media(prefers-reduced-motion:reduce){.bar{transition:none}}
+@media(max-width:979px){.bar{display:flex}body{padding-bottom:56px}}
+@media(max-width:640px){
+.r{grid-template-columns:minmax(0,1fr) 84px;grid-template-areas:"n x" "w w" "s s";gap:6px 8px}
+.cn{grid-area:n}.cw{grid-area:w}.r>.sc{grid-area:s}.r>.rb{grid-area:x}
+.hd{grid-template-areas:"s s"}.hd .hl{display:none}
+.ol{display:block;font-size:13px;color:var(--mut);text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px}
+.ur{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"n v" "s s" "b b"}
+table{font-size:13px}th,td{padding:6px 4px}
+.k{font-size:22px}
+.sel{max-width:100%;flex:1 1 100%}
+}
+</style>
+</head>
+<body>
+<header class="band top">
+  <div class="wrap">
+    <div class="tb">
+      <p class="brand"><svg viewBox="0 0 22 22" aria-hidden="true"><rect x="1" y="1" width="9" height="9" rx="1.5" fill="currentColor"/><rect x="12" y="1" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="1" y="12" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.6"/><rect x="12" y="12" width="9" height="9" rx="1.5" fill="#c8371e"/></svg>Decide Better</p>
+      <div class="lib"><label for="libsel" class="sr">Saved decisions</label><select id="libsel" class="sel"></select><button class="btn ghost" id="newD">New</button><button class="btn ghost" id="dupD">Duplicate</button><button class="btn ghost" id="delD">Delete</button></div>
+    </div>
+    <p class="sub">Weigh what matters, score each option, and see what it would take to change your mind.</p>
+    <label for="title" class="sr">Your decision</label>
+    <input id="title" class="q" autocomplete="off" maxlength="90">
+    <div class="tpls" id="tpls" role="group" aria-label="New decision from a template"></div>
+  </div>
+</header>
+
+<main class="band">
+  <div class="wrap work">
+    <section class="panel" aria-labelledby="mxh">
+      <div class="mh"><h2 id="mxh">Score each option</h2><label class="gut" for="gut">Your gut pick <select id="gut" class="sel"></select></label></div>
+      <p class="note">Rate each option 1–10, where 10 is best for you, or switch a criterion to actual values with its settings button. Importance sliders are rescaled so the weights always total 100%. Click any name to rename it.</p>
+      <div id="grid"></div>
+      <div class="adds"><button class="btn" id="addC">Add criterion</button><button class="btn" id="addO">Add option</button><button class="btn" id="pwOpen">Help me set weights</button><button class="btn ghost" id="reset">Reset template</button></div>
+      <p class="small">The template scores and prices are examples. Replace them with your own.</p>
+    </section>
+    <aside class="panel vd" id="vd" aria-live="polite"></aside>
+  </div>
+</main>
+
+<section class="band nt">
+  <div class="wrap two">
+    <div class="panel">
+      <h2>Where the points come from</h2>
+      <p class="note">Weighted points each criterion adds to an option's total. The bold figure is the best in its row.</p>
+      <div class="scroll"><table id="bd"></table></div>
+    </div>
+    <div class="ad" id="ad"></div>
+  </div>
+</section>
+
+<section class="band nt">
+  <div class="wrap two s4">
+    <div class="panel">
+      <h2 id="uncH"></h2>
+      <p class="note" id="uncN"></p>
+      <div class="bars" id="prob"></div>
+      <label class="chk" style="margin-top:16px"><input type="checkbox" id="wNoise"> Also vary every weight by up to ±25%</label>
+      <p class="small">How to read the label: <b>Robust</b> wins 85% or more of runs, <b>Likely</b> 65–85%, <b>Fragile</b> 50–65%, and <b>Coin flip</b> under 50% or a tie. A fragile result is a sign to firm up your scores on the criteria at right before deciding.</p>
+    </div>
+    <div class="panel">
+      <h2 id="attrH"></h2>
+      <p class="note">Mark how sure you are about each criterion's scores. The figure is how often doubt about that criterion alone hands the lead to another option.</p>
+      <div id="unc"></div>
+    </div>
+  </div>
+</section>
+
+<section class="band nt">
+  <div class="wrap two s3">
+    <div class="panel">
+      <h2 id="sensH"></h2>
+      <p class="note" id="sensN"></p>
+      <div class="chips" id="chips" role="group" aria-label="Criterion to test"></div>
+      <div class="fig" id="chart" role="img" aria-label="Sensitivity chart"></div>
+      <p class="small" id="cap"></p>
+    </div>
+    <div class="panel">
+      <h2>The weight that flips the result</h2>
+      <p class="note">Each row moves one weight while the others keep their proportions. “Holds” means no setting of that weight changes the leader.</p>
+      <div class="scroll"><table id="ft"></table></div>
+      <h3>Or change a single score</h3>
+      <ul class="mv" id="mv"></ul>
+    </div>
+  </div>
+</section>
+
+<footer class="band foot">
+  <div class="wrap">
+    <details class="panel io">
+      <summary>Export or import a decision</summary>
+      <p class="note">Copy this decision as text to move it to another device, or paste one here to add it to your list.</p>
+      <label for="iobox" class="sr">Decision data</label>
+      <textarea id="iobox" spellcheck="false"></textarea>
+      <div class="acts"><button class="btn" id="exp">Copy this decision</button><button class="btn" id="imp">Import pasted decision</button></div>
+      <p class="small" id="iomsg"></p>
+    </details>
+    <p class="small">Everything is calculated in your browser. Your decisions are kept on this device only.</p>
+  </div>
+</footer>
+<div class="bar" id="bar"></div>
+<div class="ov" id="ov" hidden><div class="dlg" id="dlg" role="dialog" aria-modal="true" aria-labelledby="ovh"></div></div>
+
+<script>
+{
+const CERT=[{k:'Sure',h:.5},{k:'Fairly sure',h:1.5},{k:'Guessing',h:3}];
+const mk=(name,w,s,x={})=>({name,w,s,hint:x.hint||'',mode:x.v?'value':'score',dir:x.dir||1,unit:x.unit||'',v:x.v?x.v.slice():s.map(()=>''),cert:x.cert??1,min:x.min??null});
+const TPL={
+ job:{label:'Switch jobs',title:'Should I switch jobs?',options:['Stay in current job','Switch to new job'],criteria:[mk('Growth',30,[5,8]),mk('Salary',25,[6,8],{v:[18,24],unit:'₹ LPA',cert:0}),mk('Work-life balance',20,[8,5],{cert:2}),mk('Brand',15,[7,7],{cert:0}),mk('Risk',10,[8,4],{hint:'10 = lowest risk'})]},
+ rent:{label:'Buy or rent',title:'Should I buy a flat or keep renting?',options:['Buy a flat','Keep renting'],criteria:[mk('Monthly cash flow',25,[4,7]),mk('Long-term wealth',25,[8,5],{cert:2}),mk('Flexibility to move',20,[3,9],{cert:0}),mk('Stability',15,[9,5]),mk('Maintenance effort',15,[4,8],{hint:'10 = least effort'})]},
+ laptop:{label:'Which laptop',title:'Which laptop should I buy?',options:['MacBook Air 13','ThinkPad X1 Carbon','Dell XPS 14'],criteria:[mk('Price',25,[6,5,6],{v:[114900,135000,124990],unit:'₹',dir:-1,min:130000,cert:0}),mk('Battery life',20,[9,7,6],{v:[15,12,10],unit:'hours'}),mk('Performance',20,[8,7,8]),mk('Portability',15,[9,8,7],{cert:0}),mk('Keyboard',10,[7,9,7]),mk('Software fit',10,[6,9,8])]},
+ mba:{label:'MBA specialisation',title:'Which MBA specialisation should I pick?',options:['Strategy','Finance','Marketing'],criteria:[mk('Interest',30,[9,6,7],{cert:0}),mk('Placement roles',25,[8,8,7]),mk('Fit with past experience',20,[8,5,6]),mk('Long-term optionality',15,[8,7,6],{cert:2}),mk('Course load',10,[6,4,7],{hint:'10 = lightest'})]},
+ move:{label:'Move cities',title:'Should I move to Bengaluru?',options:['Stay in Delhi','Move to Bengaluru'],criteria:[mk('Career opportunities',30,[6,9]),mk('Rent',20,[6,5],{v:[22000,30000],unit:'₹ a month',dir:-1,cert:0}),mk('Family nearby',20,[9,3],{cert:0}),mk('Lifestyle',15,[6,7],{cert:2}),mk('Commute',15,[5,4],{hint:'10 = easiest'})]},
+ biz:{label:'Business idea',title:'Which business idea should I pursue?',options:['Online tutoring','Meal-prep delivery','Handmade gifts shop'],criteria:[mk('Market demand',25,[7,8,6],{cert:2}),mk('Startup cost',20,[9,4,7],{hint:'10 = cheapest'}),mk('Time needed',20,[6,3,5],{hint:'10 = least time'}),mk('Personal interest',20,[6,5,9],{cert:0,min:6}),mk('Scalability',15,[5,7,4],{cert:2})]},
+ blank:{label:'Blank',title:'What am I deciding?',options:['Option A','Option B'],criteria:[mk('Cost',34,[5,5],{hint:'10 = cheapest'}),mk('Quality',33,[5,5]),mk('Fit',33,[5,5])]}
+};
+const LIB='decide-better-lib',OLD='decide-better-v1';
+const $=s=>document.querySelector(s);
+const $$=s=>document.querySelectorAll(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const clamp=(x,a,b)=>Math.min(b,Math.max(a,x));
+const num=x=>{const v=+x;return Number.isFinite(v)?clamp(v,1,10):5};
+const f2=x=>x.toFixed(2);
+const pc=x=>Math.round(x*100)+'%';
+const pc1=(t,now)=>Math.round(t*100)===Math.round(now*100)?(t*100).toFixed(1)+'%':pc(t);
+const nm=(s,k)=>{s=String(s||'Untitled');return s.length>k?s.slice(0,k-1)+'…':s};
+const md=s=>String(s).replace(/\|/g,'/');
+const fmtV=(x,u)=>{if(x===''||x==null||!Number.isFinite(+x))return'—';const n=(+x).toLocaleString('en-IN');u=String(u||'').trim();if(u.startsWith('₹')){const r=u.slice(1).trim();return'₹'+n+(r?' '+r:'')}return n+(u?' '+u:'')};
+const raf=window.requestAnimationFrame?f=>window.requestAnimationFrame(f):f=>setTimeout(f,16);
+let seq=0;
+const nid=()=>'k'+Date.now().toString(36)+(seq++).toString(36);
+
+const norm=s=>{
+ if(!s||typeof s!=='object'||!Array.isArray(s.options)||!Array.isArray(s.criteria))return null;
+ const n=s.options.length;
+ if(n<2||n>5||!s.criteria.length||s.criteria.length>10)return null;
+ s.id=typeof s.id==='string'&&s.id?s.id:nid();
+ s.title=String(s.title??'Untitled decision');
+ s.tpl=TPL[s.tpl]?s.tpl:'blank';
+ s.wNoise=s.wNoise!==false;
+ s.options=s.options.map(o=>({id:String(o&&o.id||nid()),name:String(o&&o.name!=null?o.name:'Option')}));
+ s.gut=s.options.some(o=>o.id===s.gut)?s.gut:'';
+ for(const c of s.criteria){
+  if(!c||!Array.isArray(c.s)||c.s.length!==n)return null;
+  c.id=String(c.id||nid());c.name=String(c.name??'Criterion');
+  c.w=Number.isFinite(+c.w)?clamp(+c.w,0,100):10;
+  c.hint=String(c.hint||'');c.mode=c.mode==='value'?'value':'score';c.dir=+c.dir===-1?-1:1;c.unit=String(c.unit||'');
+  if(!Array.isArray(c.v)||c.v.length!==n)c.v=c.s.map(()=>'');
+  c.v=c.v.map(x=>x===''||x==null||!Number.isFinite(+x)?'':+x);
+  c.cert=[0,1,2].includes(c.cert)?c.cert:1;
+  c.min=c.min===''||c.min==null||!Number.isFinite(+c.min)?null:+c.min;
+  c.s=c.s.map(num);
+ }
+ return s;
+};
+const fromTpl=k=>{const t=TPL[k];return norm({id:nid(),tpl:k,title:t.title,gut:'',wNoise:true,options:t.options.map(n=>({id:nid(),name:n})),criteria:JSON.parse(JSON.stringify(t.criteria)).map(c=>({...c,id:nid()}))})};
+
+let lib={cur:'',items:{},at:{}};
+try{const r=JSON.parse(localStorage.getItem(LIB));if(r&&r.items){for(const k in r.items){const s=norm(r.items[k]);if(s){lib.items[s.id]=s;lib.at[s.id]=r.at&&r.at[k]||0}}lib.cur=r.cur}}catch(e){}
+if(!Object.keys(lib.items).length){let s=null;try{s=norm(JSON.parse(localStorage.getItem(OLD)))}catch(e){}s=s||fromTpl('job');lib.items[s.id]=s;lib.at[s.id]=Date.now();lib.cur=s.id}
+if(!lib.items[lib.cur])lib.cur=Object.keys(lib.items)[0];
+let state=lib.items[lib.cur];
+let last=JSON.stringify(state);
+const undo=[],redo=[];
+const openRows=new Set();
+let selC=null,M=null,SIM=null,pw=null,pending=0;
+
+const save=()=>{lib.items[state.id]=state;lib.at[state.id]=Date.now();lib.cur=state.id;try{localStorage.setItem(LIB,JSON.stringify(lib))}catch(e){}};
+const updUR=()=>{const u=$('#undo'),r=$('#redo');if(u)u.disabled=!undo.length;if(r)r.disabled=!redo.length};
+const commit=()=>{const s=JSON.stringify(state);if(s!==last){undo.push(last);if(undo.length>80)undo.shift();redo.length=0;last=s}save();updUR();renderLib()};
+const sched=()=>{if(pending)return;pending=1;raf(()=>{pending=0;renderResults()})};
+const tint=v=>Math.round((clamp(v,1,10)-1)/9*22);
+
+const derive=c=>{
+ if(c.mode!=='value')return c.s.map(num);
+ const v=c.v.map(x=>x===''?NaN:+x),ok=v.filter(Number.isFinite);
+ if(!ok.length)return v.map(()=>5);
+ const mn=Math.min(...ok),mx=Math.max(...ok);
+ return v.map(x=>{
+  if(!Number.isFinite(x))return 5;
+  if(mn>0)return clamp(c.dir>0?10*x/mx:10*mn/x,1,10);
+  if(mx===mn)return 10;
+  const r=(x-mn)/(mx-mn);return 1+9*(c.dir>0?r:1-r);
+ });
+};
+const passes=(c,j,d)=>{
+ if(c.min==null)return true;
+ if(c.mode==='value'){if(c.v[j]==='')return true;return c.dir>0?+c.v[j]>=c.min:+c.v[j]<=c.min}
+ return d[j]>=c.min;
+};
+const failTxt=(c,j)=>c.mode==='value'?`${esc(c.name)} is ${fmtV(c.v[j],c.unit)}, ${c.dir>0?'below':'above'} your limit of ${fmtV(c.min,c.unit)}`:`${esc(c.name)} scored ${num(c.s[j])}, below your minimum of ${c.min}`;
+
+const compute=()=>{
+ const C=state.criteria,O=state.options,n=O.length;
+ const D=C.map(derive);
+ const tot=C.reduce((a,c)=>a+Math.max(0,+c.w||0),0);
+ const wn=C.map(c=>tot>0?Math.max(0,+c.w||0)/tot:1/C.length);
+ const S=O.map((o,j)=>C.reduce((a,c,i)=>a+wn[i]*D[i][j],0));
+ const fails=O.map((o,j)=>C.map((c,i)=>passes(c,j,D[i])?-1:i).filter(i=>i>=0));
+ const el=fails.map(f=>!f.length);
+ const order=O.map((o,j)=>j).sort((a,b)=>S[b]-S[a]||a-b);
+ const eo=order.filter(j=>el[j]);
+ const w0=eo[0],r0=eo[1];
+ const m={C,O,n,D,wn,S,fails,el,order,eo,w0,r0,zero:tot<=0};
+ m.sens=C.map((c,i)=>{
+  const out={i,now:wn[i],up:null,down:null,upTo:null,downTo:null};
+  const L=lin(m,i);
+  if(!L||eo.length<2)return out;
+  for(const j of eo){
+   if(j===w0)continue;
+   const a=L[w0][0]-L[j][0],b=L[w0][1]-L[j][1];
+   if(Math.abs(b)<1e-12)continue;
+   const t=-a/b;
+   if(t>wn[i]+1e-9&&t<0.995){if(out.up===null||t<out.up){out.up=t;out.upTo=j}}
+   else if(t<wn[i]-1e-9&&t>=-1e-9){if(out.down===null||t>out.down){out.down=Math.max(0,t);out.downTo=j}}
+  }
+  return out;
+ });
+ return m;
+};
+const lin=(m,i)=>m.wn[i]>0.999?null:m.O.map((o,j)=>{const R=(m.S[j]-m.wn[i]*m.D[i][j])/(1-m.wn[i]);return[R,m.D[i][j]-R]});
+const bestFlip=m=>{let b=null;m.sens.forEach(s=>{[[s.up,1,s.upTo],[s.down,-1,s.downTo]].forEach(([t,dir,to])=>{if(t===null)return;const d=Math.abs(t-s.now);if(!b||d<b.d)b={i:s.i,t,dir,to,d}})});return b};
+
+const rng=seed=>()=>{seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const simulate=m=>{
+ const {C,D,wn,eo,w0}=m,N=2000,K=400,wv=state.wNoise?.25:0;
+ const r=rng(20261120),tri=g=>g()+g()-1,h=C.map(c=>CERT[c.cert].h);
+ const wins=new Array(m.n).fill(0);
+ for(let k=0;k<N;k++){
+  const ws=wn.map(w=>w*(1+wv*tri(r)));const t=ws.reduce((a,b)=>a+b,0)||1;
+  let best=-1,bs=-1e9;
+  for(const j of eo){let s=0;for(let i=0;i<C.length;i++)s+=ws[i]/t*clamp(D[i][j]+h[i]*tri(r),1,10);if(s>bs){bs=s;best=j}}
+  wins[best]++;
+ }
+ const attr=C.map((c,i)=>{const g=rng(777+i*31);let f=0;for(let k=0;k<K;k++){let best=-1,bs=-1e9;for(const j of eo){const s=m.S[j]+wn[i]*(clamp(D[i][j]+h[i]*tri(g),1,10)-D[i][j]);if(s>bs){bs=s;best=j}}if(best!==w0)f++}return f/K});
+ let wf=null;
+ if(wv){const g=rng(4242);let f=0;for(let k=0;k<K;k++){const ws=wn.map(w=>w*(1+wv*tri(g)));const t=ws.reduce((a,b)=>a+b,0)||1;let best=-1,bs=-1e9;for(const j of eo){let s=0;for(let i=0;i<C.length;i++)s+=ws[i]/t*D[i][j];if(s>bs){bs=s;best=j}}if(best!==w0)f++}wf=f/K}
+ return{p:wins.map(x=>x/N),attr,wf,N};
+};
+const conf=p=>p>=.85?{t:'Robust',k:'g'}:p>=.65?{t:'Likely',k:'m'}:p>=.5?{t:'Fragile',k:'b'}:{t:'Coin flip',k:'b'};
+
+const gutWhy=(m,g)=>{
+ const {C,D,wn,w0,eo}=m;let bi=-1,bv=0,best=null;
+ C.forEach((c,i)=>{const v=wn[i]*(D[i][w0]-D[i][g]);if(v>bv){bv=v;bi=i}});
+ C.forEach((c,i)=>{
+  const L=lin(m,i);if(!L)return;
+  const a=L[g][0]-L[w0][0],b=L[g][1]-L[w0][1];if(Math.abs(b)<1e-12)return;
+  const t=-a/b;if(t<0||t>=0.995)return;
+  const tt=clamp(t+(b>0?.003:-.003),0,1),val=j=>L[j][0]+tt*L[j][1];
+  if(eo.every(j=>j===g||val(g)>=val(j))){const d=Math.abs(t-wn[i]);if(!best||d<best.d)best={i,t,dir:b>0?1:-1,d}}
+ });
+ return{bi,bv,best};
+};
+
+const tagsHTML=c=>{
+ const t=[];
+ if(c.mode==='value')t.push(`<span class="tag">${esc(c.unit||'Actual values')} · ${c.dir>0?'higher':'lower'} is better</span>`);
+ else if(c.hint)t.push(`<span class="tag">${esc(c.hint)}</span>`);
+ if(c.min!=null)t.push(`<span class="tag bad">${c.mode==='value'?`Rule out ${c.dir>0?'below':'above'} ${fmtV(c.min,c.unit)}`:`Rule out below ${c.min}`}</span>`);
+ return t.join('');
+};
+const dtxt=v=>'score '+(Math.round(v*10)/10);
+const icoSet='<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 6h14M3 14h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><circle cx="7" cy="6" r="2.4" fill="var(--panel)" stroke="currentColor" stroke-width="1.8"/><circle cx="13" cy="14" r="2.4" fill="var(--panel)" stroke="currentColor" stroke-width="1.8"/></svg>';
+
+const rxHTML=(c,i)=>{
+ const v=c.mode==='value',on=c.min!=null;
+ const lbl=v?(c.dir>0?'Rule out any option below':'Rule out any option above'):'Rule out any option scoring below';
+ return`<div class="rx">
+ <div class="rf"><span class="rl">Scored as</span><span class="seg"><button class="${v?'':'act'}" data-mode="${i}:score">1–10 rating</button><button class="${v?'act':''}" data-mode="${i}:value">Actual values</button></span></div>
+ ${v?`<div class="rf"><span class="rl">Better when</span><span class="seg"><button class="${c.dir>0?'act':''}" data-dir="${i}:1">Higher</button><button class="${c.dir<0?'act':''}" data-dir="${i}:-1">Lower</button></span></div><label class="rf"><span class="rl">Unit</span><input class="fld sm cunit" data-i="${i}" id="u${c.id}" value="${esc(c.unit)}" placeholder="₹, hours, km" maxlength="16"></label><p class="rnote">Values become a 1–10 score in proportion to the best option: the best gets 10, one that is ${c.dir>0?'half as high':'twice as costly'} gets 5.</p>`:`<label class="rf"><span class="rl">Note</span><input class="fld chint" data-i="${i}" id="h${c.id}" value="${esc(c.hint)}" placeholder="e.g. 10 = lowest risk" maxlength="40"></label>`}
+ <div class="rf"><label class="chk"><input type="checkbox" class="dbk" data-i="${i}" id="d${c.id}"${on?' checked':''}> Deal-breaker</label>${on?`<span class="rl">${lbl}</span><input class="fld sm dbv" type="number" step="any" data-i="${i}" id="m${c.id}" value="${c.min}" aria-label="${lbl}">${v&&c.unit?`<span class="rl">${esc(c.unit)}</span>`:''}`:''}</div>
+ </div>`;
+};
+const renderGrid=()=>{
+ const O=state.options,C=state.criteria,n=O.length,g=$('#grid');
+ g.style.setProperty('--n',n);
+ g.style.setProperty('--cols',`minmax(130px,1.2fr) minmax(130px,1fr) minmax(0,${(n*.75).toFixed(2)}fr) 84px`);
+ const head=`<div class="r hd"><div class="hl">Criterion</div><div class="hl">Importance</div><div class="sc">${O.map((o,j)=>`<div class="oh"><i style="background:var(--o${j})"></i><small>Option ${j+1}</small>${n>2?`<button class="x" data-delo="${j}" aria-label="Remove ${esc(o.name)}">×</button>`:''}<textarea class="oname" data-j="${j}" id="o${o.id}" rows="2" maxlength="40" aria-label="Option ${j+1} name" spellcheck="false">${esc(o.name)}</textarea></div>`).join('')}</div><div class="hl"></div></div>`;
+ const rows=C.map((c,i)=>{
+  const d=derive(c),open=openRows.has(c.id),v=c.mode==='value';
+  const cells=O.map((o,j)=>`<label class="cell"><span class="ol" data-j="${j}">${esc(o.name)}</span><input class="sv" type="number" inputmode="decimal" ${v?'step="any" placeholder="value"':'min="1" max="10" step="0.5"'} id="s${c.id}${o.id}" data-i="${i}" data-j="${j}" value="${v?c.v[j]:num(c.s[j])}" style="--h:${tint(d[j])}" aria-label="${esc(o.name)} on ${esc(c.name)}">${v?`<span class="dv" data-i="${i}" data-j="${j}">${dtxt(d[j])}</span>`:''}</label>`).join('');
+  return`<div class="r${open?' open':''}"><div class="cn"><input class="cname" data-i="${i}" id="c${c.id}" value="${esc(c.name)}" aria-label="Criterion ${i+1} name" maxlength="40"><span class="tags" data-i="${i}">${tagsHTML(c)}</span></div><div class="cw"><input type="range" class="w" id="w${c.id}" data-i="${i}" min="0" max="100" step="1" value="${+c.w||0}" aria-label="Importance of ${esc(c.name)}"><output class="wp" data-i="${i}"></output></div><div class="sc">${cells}</div><div class="rb"><button class="x${open?' act':''}" data-set="${c.id}" aria-expanded="${open}" aria-label="Settings for ${esc(c.name)}">${icoSet}</button>${C.length>1?`<button class="x" data-delc="${i}" aria-label="Remove ${esc(c.name)}">×</button>`:''}</div></div>${open?rxHTML(c,i):''}`;
+ }).join('');
+ g.innerHTML=head+rows;
+ $('#title').value=state.title;
+ $('#addO').disabled=n>=5;
+ $('#addC').disabled=C.length>=10;
+ $('#pwOpen').disabled=C.length<2;
+ $('#wNoise').checked=state.wNoise;
+ updW();renderGutSel();
+};
+const updW=()=>{const C=state.criteria,t=C.reduce((a,c)=>a+Math.max(0,+c.w||0),0);$$('.wp').forEach(o=>{const c=C[+o.dataset.i];o.textContent=t>0?pc(Math.max(0,+c.w||0)/t):pc(1/C.length)})};
+const updRow=i=>{const c=state.criteria[i],d=derive(c);$$(`.sv[data-i="${i}"]`).forEach(x=>x.style.setProperty('--h',tint(d[+x.dataset.j])));$$(`.dv[data-i="${i}"]`).forEach(x=>x.textContent=dtxt(d[+x.dataset.j]));const t=$(`.tags[data-i="${i}"]`);if(t)t.innerHTML=tagsHTML(c)};
+const renderGutSel=()=>{$('#gut').innerHTML='<option value="">No lean yet</option>'+state.options.map(o=>`<option value="${esc(o.id)}"${o.id===state.gut?' selected':''}>${esc(nm(o.name,28))}</option>`).join('')};
+const renderTpls=()=>{$('#tpls').innerHTML='<span class="tl">New from template</span>'+Object.keys(TPL).map(k=>`<button class="chip${state.tpl===k?' on':''}" data-tpl="${k}">${TPL[k].label}</button>`).join('')};
+const renderLib=()=>{const ids=Object.keys(lib.items).sort((a,b)=>(lib.at[b]||0)-(lib.at[a]||0));$('#libsel').innerHTML=ids.map(id=>`<option value="${esc(id)}"${id===state.id?' selected':''}>${esc(nm(lib.items[id].title||'Untitled decision',40))}</option>`).join('')};
+
+const bar=(name,val,w,j,cls='')=>`<div class="br${cls}"><span class="bn">${name}</span><span class="bv">${val}</span><span class="bt"><i style="width:${clamp(w,0,100).toFixed(1)}%;background:var(--o${j})"></i></span></div>`;
+
+const drawChart=()=>{
+ const fig=$('#chart');
+ if(!M)return;
+ const W=fig.clientWidth,H=fig.clientHeight;
+ if(!W||!H)return;
+ const m=M,{C,O,wn,w0,r0,S,eo}=m,i=C.findIndex(c=>c.id===selC);
+ if(i<0||eo.length<2){fig.innerHTML=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true"><text x="${W/2}" y="${H/2}" text-anchor="middle" font-size="15" fill="var(--mut)">Needs two options that pass your deal-breakers</text></svg>`;return}
+ const ss=m.sens[i],L=lin(m,i)||O.map((o,j)=>[m.D[i][j],0]),f=(j,t)=>L[j][0]+t*L[j][1];
+ const narrow=W<520,ml=34,mr=narrow?92:140,mt=26,mb=34;
+ let lo=10,hi=0;
+ eo.forEach(j=>[0,1].forEach(t=>{const v=f(j,t);lo=Math.min(lo,v);hi=Math.max(hi,v)}));
+ lo=Math.max(0,Math.floor(lo-.5));hi=Math.min(10,Math.ceil(hi+.5));
+ if(hi-lo<2){hi=Math.min(10,lo+2);lo=hi-2}
+ const X=t=>ml+t*(W-ml-mr),Y=v=>mt+(hi-v)/(hi-lo)*(H-mt-mb),step=hi-lo>6?2:1,tie=S[w0]-S[r0]<.005;
+ let out='';
+ if(!tie){const a=ss.down??0,b=ss.up??1;out+=`<rect x="${X(a)}" y="${mt}" width="${Math.max(0,X(b)-X(a))}" height="${H-mt-mb}" fill="var(--o${w0})" opacity=".08"/>`}
+ for(let v=lo;v<=hi;v+=step)out+=`<line x1="${ml}" x2="${X(1)}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--rule)"/><text x="${ml-8}" y="${Y(v)+5}" text-anchor="end" font-size="14" fill="var(--mut)">${v}</text>`;
+ (narrow?[0,.5,1]:[0,.25,.5,.75,1]).forEach(t=>{out+=`<text x="${X(t)}" y="${H-mb+22}" text-anchor="middle" font-size="14" fill="var(--mut)">${Math.round(t*100)}%</text>`});
+ const xn=X(wn[i]);
+ out+=`<line x1="${xn}" x2="${xn}" y1="${mt}" y2="${H-mb}" stroke="var(--ink)" stroke-dasharray="4 4"/><text x="${clamp(xn,ml+30,X(1)-30)}" y="16" text-anchor="middle" font-size="14" font-weight="600" fill="var(--ink)">now ${pc(wn[i])}</text>`;
+ eo.forEach(j=>{out+=`<line x1="${X(0)}" y1="${Y(f(j,0))}" x2="${X(1)}" y2="${Y(f(j,1))}" stroke="var(--o${j})" stroke-width="${j===w0?3.5:2.2}" stroke-linecap="round"/>`});
+ if(!tie)[ss.up,ss.down].forEach(t=>{if(t===null)return;const y=Y(f(w0,t));out+=`<circle cx="${X(t)}" cy="${y}" r="6" fill="var(--brick)" stroke="var(--panel)" stroke-width="2"/><text x="${clamp(X(t),ml+20,X(1)-20)}" y="${y+(y-mt<30?24:-12)}" text-anchor="middle" font-size="14" font-weight="700" fill="var(--brick)">${pc1(t,wn[i])}</text>`});
+ const labs=eo.map(j=>({j,y:Y(f(j,1))})).sort((a,b)=>a.y-b.y);
+ for(let k=1;k<labs.length;k++)if(labs[k].y-labs[k-1].y<18)labs[k].y=labs[k-1].y+18;
+ const over=labs.length?labs[labs.length-1].y-(H-mb):0;
+ if(over>0)labs.forEach(l=>l.y-=over);
+ labs.forEach(l=>{out+=`<text x="${X(1)+8}" y="${l.y+5}" font-size="14" font-weight="600" fill="var(--o${l.j})">${esc(nm(O[l.j].name,narrow?10:17))}</text>`});
+ fig.innerHTML=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${out}</svg>`;
+};
+
+const renderResults=()=>{
+ M=compute();
+ const m=M,{C,O,n,D,wn,S,order,eo,el,fails,w0,r0,sens,zero}=m,ok2=eo.length>=2;
+ const bf=ok2?bestFlip(m):null;
+ if(!C.find(c=>c.id===selC))selC=C[bf?bf.i:0].id;
+ SIM=ok2?simulate(m):null;
+ const gap=ok2?S[w0]-S[r0]:0,tie=ok2&&gap<.005;
+ const W=w0!==undefined?esc(O[w0].name):'',Rn=ok2?esc(O[r0].name):'';
+ const ruled=order.filter(j=>!el[j]);
+
+ let head;
+ if(!eo.length)head=`<p class="lab">No option survives</p><h2 class="win">Every option breaks a deal-breaker</h2><p class="mg">Loosen a deal-breaker or add an option.</p>`;
+ else if(!ok2)head=`<p class="lab">Winner by elimination</p><h2 class="win">${W}</h2><p class="big"><b>${f2(S[w0])}</b><span> / 10</span></p><p class="mg">It is the only option that passes every deal-breaker.</p>`;
+ else{
+  const lead=tie?'Effectively a tie':gap<.3?'Too close to call':gap<.8?'Narrow lead':'Clear lead',p=SIM.p[w0],cl=tie?{t:'Coin flip',k:'b'}:conf(p);
+  head=`<p class="lab">${tie?'Tied':'Current leader'}</p><h2 class="win">${tie?`${W} and ${Rn}`:W}</h2><p class="big"><b>${f2(S[w0])}</b><span> / 10</span></p><p class="mg"><b>${lead}.</b> ${tie?'Both options score the same.':`Ahead of ${Rn} by ${f2(gap)} points.`}</p><p class="cf"><span class="pill ${cl.k}">${cl.t}</span>Wins in ${pc(p)} of ${SIM.N.toLocaleString('en-IN')} simulations</p>`;
+ }
+ const ruledHTML=ruled.length?`<div class="ro"><p class="lab">Ruled out by deal-breakers</p>${ruled.map(j=>`<p><b>${esc(O[j].name)}</b>: ${fails[j].map(i=>failTxt(C[i],j)).join('; ')}.</p>`).join('')}</div>`:'';
+ const bars=`<div class="bars">${eo.map(j=>bar(esc(O[j].name),f2(S[j]),S[j]*10,j)).join('')}${ruled.map(j=>bar(esc(O[j].name)+' · ruled out',f2(S[j]),S[j]*10,j,' out')).join('')}</div>`;
+ let flip='';
+ if(ok2){
+  let t,sub='';
+  if(tie)t='It is a tie. Any change to a weight or a score decides it.';
+  else if(bf){t=bf.dir<0&&bf.t<.005?`Your decision changes only if ${esc(C[bf.i].name)} is ignored completely (now ${pc(wn[bf.i])}).`:`Your decision changes if ${esc(C[bf.i].name)} is weighted ${bf.dir>0?'above':'below'} ${pc1(bf.t,wn[bf.i])} (now ${pc(wn[bf.i])}).`;sub=`${esc(O[bf.to].name)} would take the lead.`}
+  else t=`No single weight change flips this. ${W} leads at every setting of every weight.`;
+  flip=`<div class="flip"><p class="lab">What would change the decision</p><p class="fh">${t}</p>${sub?`<p class="small">${sub}</p>`:''}</div>`;
+ }
+ let gut='';
+ const g=O.findIndex(o=>o.id===state.gut);
+ if(g>=0){
+  const G=esc(O[g].name);
+  if(!el[g])gut=`<p><b>Gut check.</b> You lean towards ${G}, but it breaks a deal-breaker: ${fails[g].map(i=>failTxt(C[i],g)).join('; ')}. If that limit is softer than you thought, loosen it and see what happens.</p>`;
+  else if(g===w0&&!tie)gut=`<p><b>Gut check.</b> Your gut and your criteria agree: ${G} leads.</p>`;
+  else if(tie&&(g===w0||g===r0))gut=`<p><b>Gut check.</b> The criteria can't separate the two, so your gut is a fair tiebreaker: ${G}.</p>`;
+  else if(w0!==undefined){
+   const y=gutWhy(m,g);
+   gut=`<p><b>Gut check.</b> You lean towards ${G}, but your criteria prefer ${W} by ${f2(S[w0]-S[g])} points${y.bi>=0?`, mostly because of ${esc(C[y.bi].name)} (worth ${f2(y.bv)} to ${W})`:''}.</p><p>${y.best?`${G} would come out on top if ${esc(C[y.best.i].name)} were weighted ${y.best.dir>0?'above':'below'} ${pc1(y.best.t,wn[y.best.i])} (now ${pc(wn[y.best.i])}).`:`No single weight change puts ${G} on top.`} If your gut still says ${G}, ask what it knows that your criteria don't. A missing criterion is the usual reason.</p>`;
+  }
+  gut=`<div class="gutb">${gut}</div>`;
+ }
+ $('#vd').innerHTML=`${head}${ruledHTML}${bars}${flip}${gut}<div class="acts"><button class="btn pri" id="copy">Copy summary</button><button class="btn" id="undo"${undo.length?'':' disabled'}>Undo</button><button class="btn" id="redo"${redo.length?'':' disabled'}>Redo</button></div><textarea id="sumbox" class="sumbox" readonly hidden aria-label="Summary text"></textarea>`;
+ $('#bar').innerHTML=w0===undefined?'<span>No option passes your deal-breakers</span>':`<span>${tie?'Tied':'Leader'} <b>${esc(nm(O[w0].name,20))}</b></span><span class="n">${f2(S[w0])}${ok2?` · wins ${pc(SIM.p[w0])}`:''}</span>`;
+
+ const cs=C.map((c,i)=>O.map((o,j)=>wn[i]*D[i][j]));
+ const mx=Math.max(.01,...cs.flat());
+ const ci=C.map((c,i)=>i).sort((a,b)=>wn[b]-wn[a]);
+ $('#bd').innerHTML=`<thead><tr><th>Criterion</th><th class="n">Weight</th>${order.map(j=>`<th>${esc(nm(O[j].name,18))}${el[j]?'':'<small>ruled out</small>'}</th>`).join('')}</tr></thead><tbody>${ci.map(i=>{const b=Math.max(...eo.map(j=>cs[i][j]),-1),allEq=eo.every(j=>Math.abs(cs[i][j]-b)<1e-9);return`<tr><td>${esc(C[i].name)}</td><td class="n">${pc(wn[i])}</td>${order.map(j=>`<td class="${!el[j]?'dim':!allEq&&Math.abs(cs[i][j]-b)<1e-9?'best':''}"><div class="cb"><span class="cbt"><i style="width:${(cs[i][j]/mx*100).toFixed(1)}%;background:var(--o${j})"></i></span><span class="cv">${f2(cs[i][j])}</span></div></td>`).join('')}</tr>`}).join('')}</tbody><tfoot><tr><td>Total</td><td class="n">100%</td>${order.map(j=>`<td class="tot">${f2(S[j])}</td>`).join('')}</tr></tfoot>`;
+
+ if(ok2){
+  const d=C.map((c,i)=>wn[i]*(D[i][w0]-D[i][r0]));
+  let ai=-1,di=-1;
+  d.forEach((v,i)=>{if(v>1e-9&&(ai<0||v>d[ai]))ai=i;if(v<-1e-9&&(di<0||v<d[di]))di=i});
+  const sv=(c,j)=>c.mode==='value'?fmtV(c.v[j],c.unit):num(c.s[j]);
+  const card=(i,good)=>{
+   const h=good?`Biggest advantage of ${W}`:`Biggest drawback of ${W}`;
+   if(i<0)return`<div class="panel"><h3>${h}</h3><p class="k">None</p><p class="note">${good?`${W} does not beat ${Rn} on any criterion.`:`${W} does at least as well as ${Rn} on every criterion.`}</p></div>`;
+   const c=C[i];
+   return`<div class="panel"><h3>${h}</h3><p class="k${good?'':' bad'}">${esc(c.name)}</p><p>${sv(c,w0)} against ${sv(c,r0)} for ${Rn}. At ${pc(wn[i])} weight, that ${good?'adds':'costs'} <b>${good?'+':'−'}${f2(Math.abs(d[i]))}</b> points ${good?'to':'from'} its lead.</p></div>`;
+  };
+  $('#ad').innerHTML=card(ai,true)+card(di,false);
+ }else $('#ad').innerHTML=`<div class="panel"><h3>Advantages and drawbacks</h3><p class="note">These compare the leader with the runner-up, so they need two options that pass your deal-breakers.</p></div>`;
+
+ if(ok2){
+  const p=SIM.p;
+  $('#uncH').textContent=`${O[w0].name} comes out on top in ${pc(p[w0])} of simulated outcomes`;
+  $('#uncN').textContent=`Each of ${SIM.N.toLocaleString('en-IN')} runs nudges every score within the range you marked (Sure ±0.5, Fairly sure ±1.5, Guessing ±3)${state.wNoise?' and shifts each weight by up to 25%':''}, then picks a winner.`;
+  $('#prob').innerHTML=eo.slice().sort((a,b)=>p[b]-p[a]).map(j=>bar(esc(O[j].name),pc(p[j]),p[j]*100,j)).join('');
+ }else{$('#uncH').textContent='Nothing to simulate yet';$('#uncN').textContent='Simulations compare options against each other, so at least two need to pass your deal-breakers.';$('#prob').innerHTML=''}
+ const at=ok2?SIM.attr:C.map(()=>0),amx=Math.max(.02,...at,ok2&&SIM.wf!=null?SIM.wf:0),top=at.indexOf(Math.max(...at));
+ $('#attrH').textContent=!ok2?'How sure are you about each criterion?':at[top]<.02&&!(SIM.wf>.02)?'None of your doubts threatens the lead':SIM.wf!=null&&SIM.wf>at[top]?'Most doubt comes from your weights':`Most doubt comes from ${C[top].name}`;
+ $('#unc').innerHTML=C.map((c,i)=>`<div class="ur"><span class="un">${esc(c.name)}</span><span class="seg" role="group" aria-label="How sure are you about ${esc(c.name)}">${CERT.map((x,k)=>`<button class="${c.cert===k?'act':''}" data-cert="${i}:${k}" aria-pressed="${c.cert===k}">${x.k}</button>`).join('')}</span><span class="uv">${ok2?pc(at[i]):''}</span><span class="bt"><i style="width:${(at[i]/amx*100).toFixed(1)}%"></i></span></div>`).join('')+(ok2&&SIM.wf!=null?`<div class="ur"><span class="un">Your weights (±25%)</span><span aria-hidden="true"></span><span class="uv">${pc(SIM.wf)}</span><span class="bt"><i style="width:${(SIM.wf/amx*100).toFixed(1)}%"></i></span></div>`:'');
+
+ const si=C.findIndex(c=>c.id===selC);
+ $('#sensH').textContent=!ok2?'Sensitivity needs two options':tie?'Tied, so every weight matters':bf?(bf.dir>0?`Holds unless ${C[bf.i].name} passes ${pc1(bf.t,wn[bf.i])}`:bf.t<.005?`Holds unless ${C[bf.i].name} is ignored`:`Holds unless ${C[bf.i].name} drops below ${pc1(bf.t,wn[bf.i])}`):`${O[w0].name} wins at any single weight`;
+ $('#sensN').textContent=`Testing ${C[si].name}. Pick another criterion to see how its weight moves the result.`;
+ $('#chips').innerHTML=C.map(c=>`<button class="chip${c.id===selC?' on':''}" data-sel="${c.id}">${esc(nm(c.name,24))}</button>`).join('');
+ $('#cap').textContent=ok2?`Each line is an option's total score as ${C[si].name}'s weight moves from 0% to 100%, with the other weights keeping their proportions. Dashed line: today's ${pc(wn[si])}.${tie?'':` Shaded: weights where ${O[w0].name} stays ahead.`}`:'';
+ const dist=s=>Math.min(s.up!==null?s.up-s.now:9,s.down!==null?s.now-s.down:9);
+ const cell=(t,to,now)=>t===null?'<span class="mu">holds</span>':`${pc1(t,now)}<small>${esc(nm(O[to].name,16))} leads</small>`;
+ $('#ft').innerHTML=ok2?`<thead><tr><th>Criterion</th><th class="n">Now</th><th class="n">Flips below</th><th class="n">Flips above</th></tr></thead><tbody>${sens.slice().sort((a,b)=>dist(a)-dist(b)).map(s=>`<tr class="${C[s.i].id===selC?'sel':''}"><td><button class="lk" data-sel="${C[s.i].id}">${esc(C[s.i].name)}</button></td><td class="n">${pc(s.now)}</td><td class="n">${tie?'—':cell(s.down,s.downTo,s.now)}</td><td class="n">${tie?'—':cell(s.up,s.upTo,s.now)}</td></tr>`).join('')}</tbody>`:'';
+ let mv=[];
+ if(!ok2)mv=['<li>Needs two options that pass your deal-breakers.</li>'];
+ else if(tie)mv=['<li>Raising either option on any weighted criterion breaks the tie.</li>'];
+ else{
+  const res=[];
+  C.forEach((c,i)=>{if(wn[i]<=0||c.mode==='value')return;const need=gap/wn[i],sr=num(c.s[r0]),sw=num(c.s[w0]);
+   if(sr+need<=10)res.push({need,t:`${Rn}'s <b>${esc(c.name)}</b> score rose above ${(sr+need).toFixed(1)} (now ${sr})`});
+   if(sw-need>=1)res.push({need,t:`${W}'s <b>${esc(c.name)}</b> score fell below ${(sw-need).toFixed(1)} (now ${sw})`});
+  });
+  res.sort((a,b)=>a.need-b.need);
+  mv=res.slice(0,4).map(r=>`<li>The lead changes if ${r.t}.</li>`);
+  if(!mv.length)mv=[`<li>No single rating change within 1–10 can overturn ${W}'s lead.</li>`];
+ }
+ $('#mv').innerHTML=mv.join('');
+ drawChart();
+};
+
+const summary=()=>{
+ const m=M,{C,O,wn,S,D,eo,el,w0,r0}=m,L=[`# ${md(state.title)}`,''];
+ if(eo.length>=2){
+  L.push(`Leader: **${md(O[w0].name)}** (${f2(S[w0])}/10), ahead of ${md(O[r0].name)} by ${f2(S[w0]-S[r0])} points.`);
+  if(SIM)L.push(`Wins in ${pc(SIM.p[w0])} of ${SIM.N} simulations (${conf(SIM.p[w0]).t.toLowerCase()}).`);
+  const bf=bestFlip(m);
+  L.push(bf?`Changes if ${md(C[bf.i].name)} is weighted ${bf.dir>0?'above':'below'} ${pc(bf.t)} (now ${pc(wn[bf.i])}); ${md(O[bf.to].name)} would lead.`:'No single weight change flips the result.');
+ }else L.push(eo.length?`${md(O[w0].name)} wins by elimination.`:'No option passes every deal-breaker.');
+ L.push('',`| Criterion | Weight | ${O.map((o,j)=>md(o.name)+(el[j]?'':' (ruled out)')).join(' | ')} |`,`|---|---:|${O.map(()=>'---:').join('|')}|`);
+ C.forEach((c,i)=>L.push(`| ${md(c.name)} | ${pc(wn[i])} | ${O.map((o,j)=>c.mode==='value'?`${fmtV(c.v[j],c.unit)} (${Math.round(D[i][j]*10)/10})`:num(c.s[j])).join(' | ')} |`));
+ L.push(`| **Total** | 100% | ${O.map((o,j)=>`**${f2(S[j])}**`).join(' | ')} |`);
+ return L.join('\n');
+};
+
+const pwOpen=()=>{const C=state.criteria;if(C.length<2)return;const pairs=[];for(let a=0;a<C.length;a++)for(let b=a+1;b<C.length;b++)pairs.push([a,b]);pw={pairs,ans:pairs.map(()=>null),k:0,back:document.activeElement};$('#ov').hidden=false;renderPW()};
+const pwClose=()=>{const b=pw&&pw.back;pw=null;$('#ov').hidden=true;if(b&&b.focus)b.focus()};
+const pwWeights=()=>{
+ const n=state.criteria.length,A=[...Array(n)].map(()=>Array(n).fill(1)),R={'-2':5,'-1':3,'0':1,'1':1/3,'2':1/5};
+ pw.pairs.forEach(([a,b],k)=>{const r=R[pw.ans[k]];A[a][b]=r;A[b][a]=1/r});
+ const g=A.map(r=>Math.pow(r.reduce((x,y)=>x*y,1),1/n)),t=g.reduce((x,y)=>x+y,0),w=g.map(x=>x/t);
+ const lam=A.reduce((acc,row,i)=>acc+row.reduce((s,v,j)=>s+v*w[j],0)/w[i],0)/n;
+ const RI=[0,0,0,.58,.9,1.12,1.24,1.32,1.41,1.45,1.49];
+ return{w,cr:n>2?((lam-n)/(n-1))/RI[n]:0};
+};
+const renderPW=()=>{
+ const C=state.criteria,d=$('#dlg'),P=pw.pairs.length;
+ if(pw.k<P){
+  const[a,b]=pw.pairs[pw.k],A=esc(C[a].name),B=esc(C[b].name);
+  const opts=[[-2,`${A}, by a lot`],[-1,`${A}, a little`],[0,'About the same'],[1,`${B}, a little`],[2,`${B}, by a lot`]];
+  d.innerHTML=`<div class="dh"><h2 id="ovh">Which matters more to you?</h2><button class="x" id="pwX" aria-label="Close">×</button></div><p class="note">Question ${pw.k+1} of ${P}. Answer by instinct; the weights come from all your answers together.</p><div class="pgb"><i style="width:${(pw.k/P*100).toFixed(1)}%"></i></div><p class="vs"><b>${A}</b><span>or</span><b>${B}</b></p><div class="pwo">${opts.map(([v,t])=>`<button class="btn${pw.ans[pw.k]===v?' pri':''}" data-pw="${v}">${t}</button>`).join('')}</div><div class="acts"><button class="btn ghost" id="pwBack"${pw.k?'':' disabled'}>Back</button></div>`;
+ }else{
+  const{w,cr}=pwWeights(),rows=C.map((c,i)=>({c,w:w[i]})).sort((x,y)=>y.w-x.w);
+  d.innerHTML=`<div class="dh"><h2 id="ovh">Suggested weights</h2><button class="x" id="pwX" aria-label="Close">×</button></div><p class="note">From your ${P} answers. ${cr>.1?'Some answers pull in different directions, so treat these as a rough guide and adjust the sliders if they feel off.':'Your answers were consistent with each other.'}</p><div class="bars">${rows.map(r=>`<div class="br"><span class="bn">${esc(r.c.name)}</span><span class="bv">${pc(r.w)}</span><span class="bt"><i style="width:${(r.w/rows[0].w*100).toFixed(1)}%;background:var(--ink)"></i></span></div>`).join('')}</div><div class="acts"><button class="btn pri" id="pwApply">Apply these weights</button><button class="btn ghost" id="pwBack">Back</button></div>`;
+ }
+ const f=d.querySelector('.pri,[data-pw="0"]');if(f)f.focus();
+};
+
+const renderAll=()=>{renderLib();renderTpls();renderGrid();renderResults()};
+const addDecision=s=>{lib.items[s.id]=s;lib.at[s.id]=Date.now();switchTo(s.id)};
+const switchTo=id=>{state=lib.items[id];undo.length=0;redo.length=0;last=JSON.stringify(state);selC=null;openRows.clear();save();renderAll()};
+const loadState=json=>{state=norm(JSON.parse(json));last=JSON.stringify(state);save();renderAll()};
+const doUndo=()=>{if(!undo.length)return;redo.push(JSON.stringify(state));loadState(undo.pop())};
+const doRedo=()=>{if(!redo.length)return;undo.push(JSON.stringify(state));loadState(redo.pop())};
+const isText=el=>el&&(el.tagName==='TEXTAREA'||el.tagName==='SELECT'||(el.tagName==='INPUT'&&!['range','checkbox'].includes(el.type)));
+
+document.addEventListener('input',e=>{
+ const t=e.target,C=state.criteria,i=+t.dataset.i;
+ if(t.id==='title'){state.title=t.value;return}
+ if(t.id==='iobox')return;
+ if(t.classList.contains('oname')){if(/\n/.test(t.value))t.value=t.value.replace(/\s*\n\s*/g,' ');const j=+t.dataset.j;state.options[j].name=t.value;$$(`.ol[data-j="${j}"]`).forEach(s=>s.textContent=t.value);renderGutSel();sched();return}
+ if(t.classList.contains('cname')){C[i].name=t.value;sched();return}
+ if(t.classList.contains('w')){C[i].w=+t.value;updW();sched();return}
+ if(t.classList.contains('cunit')){C[i].unit=t.value;updRow(i);sched();return}
+ if(t.classList.contains('chint')){C[i].hint=t.value;updRow(i);return}
+ if(t.classList.contains('dbv')){if(t.value!==''&&Number.isFinite(+t.value)){C[i].min=+t.value;updRow(i);sched()}return}
+ if(t.classList.contains('sv')){
+  const c=C[i],j=+t.dataset.j;
+  if(c.mode==='value'){c.v[j]=t.value===''||!Number.isFinite(+t.value)?'':+t.value;updRow(i);sched();return}
+  if(t.value===''||!Number.isFinite(+t.value))return;
+  c.s[j]=clamp(+t.value,1,10);updRow(i);sched();
+ }
+});
+document.addEventListener('change',e=>{
+ const t=e.target,C=state.criteria,i=+t.dataset.i;
+ if(t.id==='libsel'){if(lib.items[t.value])switchTo(t.value);return}
+ if(t.id==='gut'){state.gut=t.value;commit();renderResults();return}
+ if(t.id==='wNoise'){state.wNoise=t.checked;commit();renderResults();return}
+ if(t.classList.contains('dbk')){
+  const c=C[i];
+  if(t.checked){const ok=c.v.filter(x=>x!=='');c.min=c.mode==='value'?(ok.length?(c.dir>0?Math.min(...ok):Math.max(...ok)):0):4}else c.min=null;
+  commit();renderGrid();renderResults();const f=$(`#m${CSS.escape?CSS.escape(c.id):c.id}`);if(f)f.focus();return;
+ }
+ if(t.classList.contains('sv')&&C[i].mode==='score')t.value=num(C[i].s[+t.dataset.j]);
+ if(t.classList.contains('dbv')&&(t.value===''||!Number.isFinite(+t.value)))t.value=C[i].min;
+ if(t.matches('#title')){renderLib()}
+ if(t.matches('#title,.oname,.cname,.w,.sv,.cunit,.chint,.dbv'))commit();
+});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&pw){pwClose();return}
+ if(e.key==='Enter'&&e.target.matches('.oname,.cname,#title,.cunit,.chint')){e.preventDefault();e.target.blur();return}
+ if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'&&!isText(document.activeElement)&&!pw){e.preventDefault();e.shiftKey?doRedo():doUndo()}
+});
+document.addEventListener('click',e=>{
+ if(e.target.id==='ov'){pwClose();return}
+ const b=e.target.closest('button');
+ if(!b)return;
+ const C=state.criteria,ds=b.dataset;
+ if(ds.tpl){addDecision(fromTpl(ds.tpl));return}
+ if(b.id==='newD'){addDecision(fromTpl('blank'));return}
+ if(b.id==='dupD'){const s=norm(JSON.parse(JSON.stringify(state)));s.id=nid();s.title=state.title+' (copy)';addDecision(s);return}
+ if(b.id==='delD'){
+  if(ds.armed!=='1'){ds.armed='1';b.textContent='Confirm delete';b.classList.add('warn');setTimeout(()=>{ds.armed='';b.textContent='Delete';b.classList.remove('warn')},3000);return}
+  ds.armed='';b.textContent='Delete';b.classList.remove('warn');
+  delete lib.items[state.id];delete lib.at[state.id];
+  const ids=Object.keys(lib.items).sort((a,c)=>(lib.at[c]||0)-(lib.at[a]||0));
+  if(ids.length)switchTo(ids[0]);else addDecision(fromTpl('blank'));
+  return;
+ }
+ if(b.id==='reset'){const s=fromTpl(state.tpl);s.id=state.id;state=s;selC=null;openRows.clear();commit();renderAll();return}
+ if(b.id==='addC'){if(C.length>=10)return;C.push(norm({options:state.options,criteria:[{name:'New criterion',w:10,s:state.options.map(()=>5)}]}).criteria[0]);commit();renderAll();const ins=$$('.cname'),l=ins[ins.length-1];if(l){l.focus();l.select()}return}
+ if(b.id==='addO'){if(state.options.length>=5)return;state.options.push({id:nid(),name:'Option '+String.fromCharCode(65+state.options.length)});C.forEach(c=>{c.s.push(5);c.v.push('')});commit();renderAll();const ons=$$('.oname'),l=ons[ons.length-1];if(l){l.focus();l.select()}return}
+ if(ds.delc!==undefined){if(C.length>1){const c=C.splice(+ds.delc,1)[0];openRows.delete(c.id);commit();renderAll()}return}
+ if(ds.delo!==undefined){if(state.options.length>2){const j=+ds.delo,o=state.options.splice(j,1)[0];if(state.gut===o.id)state.gut='';C.forEach(c=>{c.s.splice(j,1);c.v.splice(j,1)});commit();renderAll()}return}
+ if(ds.set){openRows.has(ds.set)?openRows.delete(ds.set):openRows.add(ds.set);renderGrid();const nb=$(`[data-set="${ds.set}"]`);if(nb)nb.focus();return}
+ if(ds.mode){const[i,v]=ds.mode.split(':'),c=C[+i];if(c.mode!==v){if(v==='score')c.s=derive(c).map(x=>Math.round(x*2)/2);c.mode=v;c.min=null;commit();renderGrid();renderResults()}return}
+ if(ds.dir){const[i,v]=ds.dir.split(':'),c=C[+i];c.dir=+v;if(c.min!=null){const ok=c.v.filter(x=>x!=='');c.min=ok.length?(c.dir>0?Math.min(...ok):Math.max(...ok)):c.min}commit();renderGrid();renderResults();return}
+ if(ds.cert){const[i,k]=ds.cert.split(':');C[+i].cert=+k;commit();renderResults();return}
+ if(ds.sel){selC=ds.sel;renderResults();return}
+ if(b.id==='undo'){doUndo();return}
+ if(b.id==='redo'){doRedo();return}
+ if(b.id==='pwOpen'){pwOpen();return}
+ if(b.id==='pwX'){pwClose();return}
+ if(ds.pw!==undefined&&pw){pw.ans[pw.k]=+ds.pw;pw.k++;renderPW();return}
+ if(b.id==='pwBack'&&pw){if(pw.k>0)pw.k--;renderPW();return}
+ if(b.id==='pwApply'&&pw){const{w}=pwWeights();C.forEach((c,i)=>{c.w=Math.max(1,Math.round(w[i]*100))});pwClose();commit();renderAll();return}
+ if(b.id==='copy'){
+  const txt=summary(),fail=()=>{const box=$('#sumbox');if(box){box.hidden=false;box.value=txt;box.focus();box.select()}b.textContent='Select and copy below'};
+  try{navigator.clipboard.writeText(txt).then(()=>{b.textContent='Copied';setTimeout(()=>{b.textContent='Copy summary'},1600)},fail)}catch(err){fail()}
+  return;
+ }
+ if(b.id==='exp'){
+  const box=$('#iobox'),txt=JSON.stringify(state);box.value=txt;
+  const msg=t=>{$('#iomsg').textContent=t};
+  try{navigator.clipboard.writeText(txt).then(()=>msg('Copied. Paste it into Decide Better on another device.'),()=>{box.select();msg('Copying was blocked. The text is selected above; copy it yourself.')})}catch(err){box.select();msg('Copying was blocked. The text is selected above; copy it yourself.')}
+  return;
+ }
+ if(b.id==='imp'){
+  let s=null;try{s=norm(JSON.parse($('#iobox').value))}catch(err){}
+  if(!s){$('#iomsg').textContent="That doesn't look like a Decide Better decision. Paste the full text you copied.";return}
+  s.id=nid();addDecision(s);$('#iomsg').textContent=`Imported “${s.title}” as a new decision.`;
+ }
+});
+
+renderAll();
+const barObs=new IntersectionObserver(es=>es.forEach(x=>$('#bar').classList.toggle('hide',x.isIntersecting)));
+barObs.observe($('#vd'));
+const chartObs=new ResizeObserver(()=>drawChart());
+chartObs.observe($('#chart'));
+}
+</script>
+</body>
+</html>
