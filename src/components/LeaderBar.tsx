@@ -24,7 +24,7 @@ export function LeaderBar() {
           <span>
             {m.tie ? 'Tied' : 'Leader'} <b>{nm(d.options[m.leader]!.name, 20)}</b>
           </span>
-          <span className="tabular-nums">
+          <span className="shrink-0 whitespace-nowrap tabular-nums">
             {f2(m.S[m.leader]!)}
             {a.comparable && sim ? ` · wins ${pc(sim.p[m.leader]!)}` : ''}
           </span>

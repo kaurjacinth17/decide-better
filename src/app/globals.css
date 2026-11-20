@@ -22,6 +22,8 @@
   --mut: light-dark(#5c574f, #a9a399);
   --rule: light-dark(#d3cec6, #3a3631);
   --brick: light-dark(#c8371e, #ec6045);
+  /* Brick for small text on tinted backgrounds: darker in light mode, lighter in dark mode (WCAG AA). */
+  --brick-text: light-dark(#b0301a, #ff8e78);
   --o0: var(--brick);
   --o1: var(--ink);
   --o2: light-dark(#2f6b8a, #6fb0d4);
@@ -181,6 +183,7 @@
   }
   .chip {
     min-height: 44px;
+    min-width: 44px;
     padding: 0 16px;
     border: 1px solid var(--rule);
     border-radius: 999px;
@@ -282,7 +285,7 @@
     background: color-mix(in srgb, var(--ink) 6%, transparent);
   }
   .tag.bad {
-    color: var(--brick);
+    color: var(--brick-text);
     background: color-mix(in srgb, var(--brick) 10%, transparent);
   }
   .pill {
@@ -317,6 +320,7 @@
     font-weight: 800;
     font-size: clamp(30px, 4.6vw, 48px);
     line-height: 1.08;
+    min-height: 44px;
     letter-spacing: -0.025em;
   }
   .q:hover {
@@ -645,6 +649,9 @@
     overflow-x: auto;
     margin-top: 14px;
   }
+  .scroll:focus-visible {
+    outline-offset: 4px;
+  }
   .tbl {
     width: 100%;
     border-collapse: collapse;
@@ -661,7 +668,7 @@
   }
   .tbl th small {
     display: block;
-    color: var(--brick);
+    color: var(--brick-text);
     font-size: 13px;
   }
   .tbl td {
@@ -724,6 +731,7 @@
     background: none;
     padding: 6px 0;
     min-height: 44px;
+    min-width: 44px;
     text-align: left;
     font-weight: 600;
     cursor: pointer;

@@ -213,4 +213,19 @@ test.describe('happy paths', () => {
     await verdict(page).scrollIntoViewIfNeeded();
     await expect(bar).toHaveClass(/hide/);
   });
+
+  test("switching decisions never shows or crashes on another decision's simulation", async ({ page }) => {
+    const errors: string[] = [];
+    page.on('pageerror', (e) => errors.push(e.message));
+    await fresh(page);
+    await expect(verdict(page)).toContainText('Wins in 86%');
+    // Same option count, different criteria count: the classic stale-result trap.
+    await page.getByRole('button', { name: 'Blank' }).click();
+    await expect(verdict(page).locator('.pill')).toHaveText('Coin flip');
+    await page.getByRole('button', { name: 'Buy or rent' }).click();
+    await page.getByRole('button', { name: 'Move cities' }).click();
+    await page.getByLabel('Saved decisions').selectOption({ index: 3 });
+    await expect(verdict(page)).toContainText('Wins in 86%');
+    expect(errors).toEqual([]);
+  });
 });

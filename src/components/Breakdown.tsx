@@ -13,7 +13,7 @@ export function Breakdown() {
     <div className="panel">
       <h2>Where the points come from</h2>
       <p className="note">Weighted points each criterion adds to an option&apos;s total. The bold figure is the best in its row.</p>
-      <div className="scroll">
+      <div className="scroll" tabIndex={0} role="region" aria-label="Points breakdown table, scrolls sideways">
         <table className="tbl" aria-label="Points breakdown">
           <thead>
             <tr>

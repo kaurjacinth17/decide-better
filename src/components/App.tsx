@@ -3,7 +3,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { actions, getAppStore, useApp, useCurrent } from '@/store/appStore';
 import { ExportImport } from './ExportImport';
 import { Header } from './Header';
-import { useAnalysis, useSimulationSync } from './hooks';
+import { useAnalysis } from './hooks';
+import { useSimulation } from './useSimulation';
 import { WeightHelper } from './WeightHelper';
 import { WorkspaceProvider } from './Workspace';
 import { WorkspaceSections } from './WorkspaceSections';
@@ -47,13 +48,13 @@ function SaveError() {
 function Editor() {
   const d = useCurrent();
   const a = useAnalysis(d)!;
-  const sim = useSimulationSync(a);
+  const { sim, pending } = useSimulation(a);
   const [weightsOpen, setWeightsOpen] = useState(false);
   const store = getAppStore().getState();
 
   const value = useMemo(
-    () => ({ d, a, sim, simPending: false, readOnly: false, edit: store.edit, commit: store.commit, change: store.change }),
-    [d, a, sim, store],
+    () => ({ d, a, sim, simPending: pending, readOnly: false, edit: store.edit, commit: store.commit, change: store.change }),
+    [d, a, sim, pending, store],
   );
 
   useEffect(() => {

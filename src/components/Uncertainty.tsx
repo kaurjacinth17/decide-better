@@ -51,7 +51,7 @@ export function Probabilities() {
 
 export function CertaintyPanel() {
   const { d, a, sim, change, readOnly } = useWorkspace();
-  const ok = a.comparable && !!sim;
+  const ok = a.comparable && !!sim && sim.attr.length === d.criteria.length;
   const at = ok ? sim!.attr : d.criteria.map(() => 0);
   const wf = ok ? sim!.weightFlip : null;
   const amx = Math.max(0.02, ...at, wf ?? 0);

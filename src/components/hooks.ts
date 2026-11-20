@@ -1,17 +1,9 @@
 'use client';
 import { useEffect, useMemo, useState } from 'react';
-import { analyse, simulate, toSimInput, type Analysis, type Decision, type SimResult } from '@/engine';
+import { analyse, type Analysis, type Decision } from '@/engine';
 
 export function useAnalysis(d: Decision | undefined): Analysis | null {
   return useMemo(() => (d ? analyse(d) : null), [d]);
-}
-
-/** Synchronous simulation. Replaced by the worker-backed hook in milestone 4. */
-export function useSimulationSync(a: Analysis | null): SimResult | null {
-  return useMemo(() => {
-    const inp = a ? toSimInput(a.model) : null;
-    return inp ? simulate(inp) : null;
-  }, [a]);
 }
 
 /** Matches a CSS media query; false during SSR. */

@@ -217,7 +217,7 @@ export function FlipTable() {
         Each row moves one weight while the others keep their proportions. “Holds” means no setting of that weight changes the leader.
       </p>
       {ok && (
-        <div className="scroll">
+        <div className="scroll" tabIndex={0} role="region" aria-label="Flip points table, scrolls sideways">
           <table className="tbl" aria-label="Flip points by criterion">
             <thead>
               <tr>

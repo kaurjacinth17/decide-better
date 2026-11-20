@@ -1,6 +1,19 @@
 'use client';
 import { useState, type ReactNode } from 'react';
-import { clamp, confidenceLabel, f2, fmtValue, leadLabel, pc, pc1, summaryMarkdown, type Criterion, type Model } from '@/engine';
+import {
+  clamp,
+  confidenceLabel,
+  f2,
+  fmtValue,
+  leadLabel,
+  pc,
+  pc1,
+  simulate,
+  summaryMarkdown,
+  toSimInput,
+  type Criterion,
+  type Model,
+} from '@/engine';
 import { optColor, useWorkspace } from './Workspace';
 
 export function Bar({ name, val, w, j, out }: { name: ReactNode; val: string; w: number; j: number; out?: boolean }) {
@@ -28,7 +41,9 @@ export function CopySummary() {
   const [label, setLabel] = useState('Copy summary');
   const [fallback, setFallback] = useState<string | null>(null);
   const copy = async () => {
-    const txt = summaryMarkdown(a, sim);
+    // If the worker hasn't answered yet, compute the (deterministic) result here so the summary is complete.
+    const inp = toSimInput(a.model);
+    const txt = summaryMarkdown(a, sim ?? (inp ? simulate(inp) : null));
     try {
       await navigator.clipboard.writeText(txt);
       setLabel('Copied');
